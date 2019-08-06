@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sapo.model.Item;
 import com.sapo.repository.ItemRepository;
-import com.sapo.shopee.PostJSONWithHttpURLConnection;
+import com.sapo.shopee.PostJSON;
 
 @RestController
 public class ItemController {
-	PostJSONWithHttpURLConnection json = new PostJSONWithHttpURLConnection();
+	PostJSON json = new PostJSON();
 	@Autowired
 	ItemRepository itemRepository;
 	@PutMapping("/items/{id}")
@@ -49,10 +49,17 @@ public class ItemController {
 	@GetMapping("/rival/{shop_id}/{item_id}")
 	public List<Item> itemRival(@PathVariable("shop_id") Long SHOP_ID,@PathVariable("item_id") Long ITEM_ID) throws Exception{
 		List<Item> list = json.rival(ITEM_ID, SHOP_ID);
+		List<Item> items= new ArrayList<Item>();
 		for (Item item : list) {
-			System.out.println(json.itemDetails(ITEM_ID, SHOP_ID).getPrice());
+			Item itemDetails = json.itemDetails(item.getItem_id(), item.getShopid());
+			itemDetails.setItem_id(itemDetails.getItemid());
+			items.add(itemDetails);
 		}
-		return list;
+		return items;
+	}
+	@GetMapping("/itemDetails/{shop_id}/{item_id}")
+	public Item itemDetails(@PathVariable("shop_id") Long SHOP_ID,@PathVariable("item_id") Long ITEM_ID) throws Exception{
+		return json.itemDetails(ITEM_ID, SHOP_ID);
 	}
 //	@GetMapping("/google/{shop_id}/{item_id}")
 //	public String google(@PathVariable("shop_id") Long SHOP_ID,@PathVariable("item_id") Long ITEM_ID) throws Exception {

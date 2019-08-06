@@ -21,7 +21,7 @@ import com.sapo.model.Item;
 import com.sapo.model.ItemDetails;
 import com.sapo.model.ItemList;
 
-public class PostJSONWithHttpURLConnection {
+public class PostJSON {
 	private final String USER_AGENT = "Mozilla/5.0";
 	public static final String TEST_KEY = "26f76c014a453d1fb248f35e2a42d3c655fd97a9e671b79d3dfa59eb876bb43e";
 	public static final int PARTNER_ID = 840386;
@@ -147,6 +147,13 @@ public class PostJSONWithHttpURLConnection {
 		Gson gson = new Gson();
 		ItemDetails itemDetails = gson.fromJson(json, ItemDetails.class);
 		Item item = itemDetails.getItem();
+		item.setPrice(item.getPrice()/10000);
+		String[] images = item.getImages();
+		int k=images.length;
+		for (int i=0;i<k;i++) {
+			images[i] = "https://cf.shopee.vn/file/"+images[i];
+		}
+		item.setImages(images);
 		return item;
 	}
 	public String sendGet(String url) throws Exception {

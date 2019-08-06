@@ -1,13 +1,20 @@
 package com.sapo.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Item {
 	@Id
 	private Long item_id;
+	@Transient
+	@JsonIgnore
 	@Column(nullable = true)
 	private Long itemid;
 	@Column(nullable = true)
@@ -188,5 +195,6 @@ public class Item {
 	public void setItemid(Long itemid) {
 		this.itemid = itemid;
 	}
+	
 		
 }
