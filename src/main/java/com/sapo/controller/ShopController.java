@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +16,7 @@ import com.sapo.model.Shop;
 import com.sapo.model.User;
 import com.sapo.repository.ShopRepository;
 import com.sapo.repository.UserRepository;
-
+@CrossOrigin()
 @RestController
 public class ShopController {
 	@Value("${shopee.partnerKey}")

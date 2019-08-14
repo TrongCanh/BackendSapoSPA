@@ -23,8 +23,8 @@ import com.sapo.model.ItemList;
 
 public class PostJSON {
 	private final String USER_AGENT = "Mozilla/5.0";
-	public static final String TEST_KEY = "26f76c014a453d1fb248f35e2a42d3c655fd97a9e671b79d3dfa59eb876bb43e";
-	public static final int PARTNER_ID = 840386;
+	public static final String TEST_KEY = "0521422437ed88abefadf1a5bbca861e4570cc0566458c4550c23aecd032d0b8";
+	public static final int PARTNER_ID = 842940;
 
 //	public List<Item> items() throws IOException{
 //		List<Item> listItem= new ArrayList<Item>();
@@ -88,7 +88,7 @@ public class PostJSON {
 	public List<Item> items(Long SHOP_ID) throws IOException {
 		List<Item> listItem = new ArrayList<Item>();
 		String timestamp = String.valueOf(Instant.now().getEpochSecond());
-		String url_str = "https://partner.uat.shopeemobile.com/api/v1/items/get";
+		String url_str = "https://partner.shopeemobile.com/api/v1/items/get";
 		String jsonInputString = String.format(
 				"{\"pagination_offset\": %d, \"pagination_entries_per_page\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s}",
 				0, 10, PARTNER_ID, SHOP_ID, timestamp);
@@ -101,7 +101,7 @@ public class PostJSON {
 
 	public Item item(Long ITEM_ID, Long SHOP_ID) throws IOException {
 		String timestamp = String.valueOf(Instant.now().getEpochSecond());
-		String url_str = "https://partner.uat.shopeemobile.com/api/v1/item/get";
+		String url_str = "https://partner.shopeemobile.com/api/v1/item/get";
 		String jsonInputString = String.format(
 				"{\"item_id\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s}", ITEM_ID, PARTNER_ID, SHOP_ID,
 				timestamp);
@@ -114,7 +114,7 @@ public class PostJSON {
 
 	public Item price(Long ITEM_ID, Long SHOP_ID, float price) throws IOException {
 		String timestamp = String.valueOf(Instant.now().getEpochSecond());
-		String url_str = "https://partner.uat.shopeemobile.com/api/v1/items/update_price";
+		String url_str = "https://partner.shopeemobile.com/api/v1/items/update_price";
 		String jsonInputString = String.format(
 				"{\"item_id\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s, \"price\" :%f}", ITEM_ID,
 				PARTNER_ID, SHOP_ID, timestamp, price);

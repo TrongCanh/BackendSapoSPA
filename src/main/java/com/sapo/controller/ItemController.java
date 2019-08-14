@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sapo.model.Item;
 import com.sapo.repository.ItemRepository;
 import com.sapo.shopee.PostJSON;
-
+@CrossOrigin()
 @RestController
 public class ItemController {
 	PostJSON json = new PostJSON();
