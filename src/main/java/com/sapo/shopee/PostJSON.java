@@ -23,8 +23,14 @@ import com.sapo.model.ItemList;
 
 public class PostJSON {
 	private final String USER_AGENT = "Mozilla/5.0";
+<<<<<<< HEAD
 	public static final String TEST_KEY = "0521422437ed88abefadf1a5bbca861e4570cc0566458c4550c23aecd032d0b8";
 	public static final int PARTNER_ID = 842940;
+=======
+	public static final String TEST_KEY = "4206e30ba3bdcb3164fe8ade8d4b1f2ed57140a480d32b9bed8af202f65a5e80";
+	
+	public static final int PARTNER_ID = 842939;
+>>>>>>> Canh
 
 //	public List<Item> items() throws IOException{
 //		List<Item> listItem= new ArrayList<Item>();
@@ -99,7 +105,7 @@ public class PostJSON {
 		return listItem;
 	}
 
-	public Item item(Long ITEM_ID, Long SHOP_ID) throws IOException {
+	public Item item(Long ITEM_ID, Long SHOP_ID) throws Exception {
 		String timestamp = String.valueOf(Instant.now().getEpochSecond());
 		String url_str = "https://partner.shopeemobile.com/api/v1/item/get";
 		String jsonInputString = String.format(
@@ -111,7 +117,21 @@ public class PostJSON {
 		Item item = itemDetails.getItem();
 		return item;
 	}
-
+	public Item itemDetails(Long itemid, Long shopid) throws Exception {
+		String url = "https://shopee.vn/api/v2/item/get?itemid="+itemid+"&shopid="+shopid;
+		String json = sendGet(url);
+		Gson gson = new Gson();
+		ItemDetails itemDetails = gson.fromJson(json, ItemDetails.class);
+		Item item = itemDetails.getItem();
+		item.setPrice(item.getPrice()/10000);
+		String[] images = item.getImages();
+		int k=images.length;
+		for (int i=0;i<k;i++) {
+			images[i] = "https://cf.shopee.vn/file/"+images[i];
+		}
+		item.setImages(images);
+		return item;
+	}
 	public Item price(Long ITEM_ID, Long SHOP_ID, float price) throws IOException {
 		String timestamp = String.valueOf(Instant.now().getEpochSecond());
 		String url_str = "https://partner.shopeemobile.com/api/v1/items/update_price";
@@ -139,22 +159,6 @@ public class PostJSON {
 			item.setItem_id(item.getItemid());
 		}
 		return listItem;
-
-	}
-	public Item itemDetails(Long itemid, Long shopid) throws Exception {
-		String url = "https://shopee.vn/api/v2/item/get?itemid="+itemid+"&shopid="+shopid;
-		String json = sendGet(url);
-		Gson gson = new Gson();
-		ItemDetails itemDetails = gson.fromJson(json, ItemDetails.class);
-		Item item = itemDetails.getItem();
-		item.setPrice(item.getPrice()/10000);
-		String[] images = item.getImages();
-		int k=images.length;
-		for (int i=0;i<k;i++) {
-			images[i] = "https://cf.shopee.vn/file/"+images[i];
-		}
-		item.setImages(images);
-		return item;
 	}
 	public String sendGet(String url) throws Exception {
 

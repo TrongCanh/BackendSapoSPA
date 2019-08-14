@@ -59,7 +59,7 @@ public class ShopController {
 	@GetMapping("/shopee")
 	public String shopee() {
 		String token=calToken(redirectURL, partnerKey);
-		String urlShopee="https://partner.uat.shopeemobile.com/api/v1/shop/auth_partner?id="+partnerId+"&token="+token+"&redirect="+redirectURL;
+		String urlShopee="https://partner.shopeemobile.com/api/v1/shop/auth_partner?id="+partnerId+"&token="+token+"&redirect="+redirectURL;
 		return urlShopee;
 	}
 	public static String calToken(String redirectURL, String partnerKey) {
