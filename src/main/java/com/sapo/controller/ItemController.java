@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sapo.model.Item;
+import com.sapo.model.ItemList;
 import com.sapo.model.ItemPrice;
 import com.sapo.model.Rival;
 import com.sapo.repository.ItemPriceRepository;
@@ -89,10 +90,10 @@ public class ItemController {
 		List<Item> list = itemRepository.findAll();
 		List<Item> itemsList = new ArrayList<Item>();
 		for (Item item : list) {
-			if(item.getItem_id()==SHOP_ID)
+			if(item.getShopid()==SHOP_ID)
 				itemsList.add(item);
 		}
-		return itemsList;
+		return list;
 	}
 
 	@GetMapping("/item/{shop_id}/{item_id}")

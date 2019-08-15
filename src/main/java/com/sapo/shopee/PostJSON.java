@@ -23,14 +23,8 @@ import com.sapo.model.ItemList;
 
 public class PostJSON {
 	private final String USER_AGENT = "Mozilla/5.0";
-<<<<<<< HEAD
 	public static final String TEST_KEY = "0521422437ed88abefadf1a5bbca861e4570cc0566458c4550c23aecd032d0b8";
 	public static final int PARTNER_ID = 842940;
-=======
-	public static final String TEST_KEY = "4206e30ba3bdcb3164fe8ade8d4b1f2ed57140a480d32b9bed8af202f65a5e80";
-	
-	public static final int PARTNER_ID = 842939;
->>>>>>> Canh
 
 //	public List<Item> items() throws IOException{
 //		List<Item> listItem= new ArrayList<Item>();
