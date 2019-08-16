@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -18,12 +19,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
 import com.sapo.dto.ItemV2;
+import com.sapo.dto.ItemsV2;
+import com.sapo.dto.KeyItem;
+import com.sapo.dto.ShopV2;
+import com.sapo.dto.Shop_covers;
 import com.sapo.model.Item;
-import com.sapo.model.Item_rating;
+import com.sapo.model.Rating;
+import com.sapo.model.Shop;
 import com.sapo.repository.ItemRepository;
 import com.sapo.util.Util;
 
@@ -49,14 +54,44 @@ public class ShopeeApi {
 		return callShopeeAPI(Util.GetItemDetail_URLV1, bodyStr);
 	}
 
-	public Item getItemDetailsV2(long item_id, long shopid) throws Exception {
-		String uri = "https://shopee.vn/api/v2/item/get?itemid=" + item_id + "&shopid=" + shopid;
-		Item item = gson.fromJson(callAPI(uri), ItemV2.class).getItem();
-		Item_rating item_rating = item.getItem_rating();
-		item.setRating_count(item_rating.getRating_count());
-		item.setRating_star(item_rating.getRating_star());
-//		itemRepository.save(item);
+	public Item getItemDetailsV2(long itemid, long shopid) throws Exception {
+		String uri = "https://shopee.vn/api/v2/item/get?itemid=" + itemid + "&shopid=" + shopid;
+		Item item = gson.fromJson(callApi(uri), ItemV2.class).getItem();
+		Rating item_rating = item.getItem_rating();
+		if (item_rating != null) {
+			item.setRating_count(item_rating.getRating_count());
+			item.setRating_star(item_rating.getRating_star());
+		}
+		// itemRepository.save(item);
+		
 		return item;
+	}
+
+	public List<KeyItem> getRivals( long itemid, Long shopid) throws Exception, Exception {
+		String name = getItemDetailsV2(itemid, shopid).getName();
+		String url = "https://shopee.vn/api/v2/search_items/?by=relevancy&keyword=" + encodeValue(name)
+				+ "&newest=0&order=desc&page_type=search";
+		List<KeyItem> items = gson.fromJson(callApi(url), ItemsV2.class).getItems();
+		return items;
+	}
+
+	public Shop shopInfor(long shopid) throws Exception {
+		String url = "https://shopee.vn/api/v2/shop/get?shopid=" + shopid;
+		Shop shop = gson.fromJson(callApi(url), ShopV2.class).getData();
+		Rating rating = shop.getBuyer_rating();
+		if (rating != null) {
+			shop.setRating_count(rating.getRating_count());
+			shop.setRating_star(rating.getRating_star());
+		}
+		List<Shop_covers> cover = shop.getShop_covers();
+		if (cover != null) {
+			String coverImg[] = new String[cover.size()];
+			for (int i = 0; i < cover.size(); i++) {
+				coverImg[i] = "https://cf.shopee.vn/file/" + cover.get(i).getImage_url();
+			}
+			shop.setImages(coverImg);
+		}
+		return shop;
 	}
 
 	public String updatePrice(Long ITEM_ID, Long SHOP_ID, float price) throws IOException {
@@ -67,13 +102,39 @@ public class ShopeeApi {
 
 	}
 
-	public String callAPI(String uri) throws Exception {
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject(uri, String.class);
-		System.out.println(uri);
-		System.out.println(result);
-		return result;
+	public String callApi(String url) throws Exception {
+
+		URL obj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+		// optional default is GET
+		con.setRequestMethod("GET");
+
+		// add request header
+		con.setRequestProperty("User-Agent", Util.USER_AGENT);
+
+		int responseCode = con.getResponseCode();
+		System.out.println("\nSending 'GET' request to URL : " + url);
+		System.out.println("Response Code : " + responseCode);
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		String inputLine;
+		StringBuffer response = new StringBuffer();
+
+		while ((inputLine = in.readLine()) != null) {
+			response.append(inputLine);
+		}
+		in.close();
+
+		return response.toString();
 	}
+//	public String callAPI(String uri) throws Exception {
+//		RestTemplate restTemplate = new RestTemplate();
+//		String result = restTemplate.getForObject(uri, String.class);
+//		System.out.println(uri);
+//		System.out.println(result);
+//		return result;
+//	}
 
 	public String callShopeeAPI(String url_str, String jsonInputString) throws IOException {
 		String json = null;
@@ -149,5 +210,13 @@ public class ShopeeApi {
 		hexDigits[0] = Character.forDigit((num >> 4) & 0xF, 16);
 		hexDigits[1] = Character.forDigit((num & 0xF), 16);
 		return new String(hexDigits);
+	}
+
+	private static String encodeValue(String value) {
+		try {
+			return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+		} catch (UnsupportedEncodingException ex) {
+			throw new RuntimeException(ex.getCause());
+		}
 	}
 }

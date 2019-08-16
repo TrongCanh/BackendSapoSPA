@@ -7,8 +7,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -22,6 +20,12 @@ public class Item {
 	@Column(nullable = true)
 	private String[] images;
 	@Column(nullable = true)
+	private String name;
+	@Column(nullable = true)
+	private Long shopid;
+	@Column(nullable = true)
+	private String brand;
+	@Column(nullable = true)
 	private float price;
 	@Column(nullable = true)
 	private float rating_star;
@@ -30,9 +34,11 @@ public class Item {
 	@JsonIgnore
 	@Transient
 	@Column(nullable = true)
-	private Item_rating item_rating;
+	private Rating item_rating;
 	@Column(nullable = true)
 	private int historical_sold;
+	@Column(nullable = true)
+	private int sold;
 	@Column(nullable = true)
 	private float price_max;
 	@Column(nullable = true)
@@ -42,7 +48,6 @@ public class Item {
 	@Column(nullable = true)
 	private int stock;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
-	@JsonIgnore
 	private Set<Category> categories = new HashSet<Category>();
 
 	public Long getItemid() {
@@ -85,11 +90,11 @@ public class Item {
 		this.rating_count = rating_count;
 	}
 
-	public Item_rating getItem_rating() {
+	public Rating getItem_rating() {
 		return item_rating;
 	}
 
-	public void setItem_rating(Item_rating item_rating) {
+	public void setItem_rating(Rating item_rating) {
 		this.item_rating = item_rating;
 	}
 
@@ -139,6 +144,38 @@ public class Item {
 
 	public void setCategories(Set<Category> categories) {
 		this.categories = categories;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public Long getShopid() {
+		return shopid;
+	}
+
+	public void setShopid(Long shopid) {
+		this.shopid = shopid;
+	}
+
+	public int getSold() {
+		return sold;
+	}
+
+	public void setSold(int sold) {
+		this.sold = sold;
 	}
 
 	public Item() {

@@ -1,6 +1,6 @@
 package com.sapo.model;
 
-public class Item_rating {
+public class Rating {
 	private float rating_star;
 	private int[] rating_count;
 	public float getRating_star() {
