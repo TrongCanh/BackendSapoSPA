@@ -17,7 +17,7 @@ public class Category {
 	private String display_name;
 	private Long catid;
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="item_id",nullable = true)
+	@JoinColumn(name="item_id",nullable = false)
 	@JsonIgnore
 	private Item item;
 	public Long getId() {

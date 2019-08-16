@@ -47,6 +47,7 @@ public class Item {
 	private String discount;
 	@Column(nullable = true)
 	private int stock;
+	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private Set<Category> categories = new HashSet<Category>();
 
