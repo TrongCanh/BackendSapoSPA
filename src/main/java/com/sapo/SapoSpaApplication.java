@@ -7,7 +7,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-@EnableScheduling
+//@EnableScheduling
 @SpringBootApplication
 public class SapoSpaApplication {
 
@@ -15,11 +15,11 @@ public class SapoSpaApplication {
 		SpringApplication.run(SapoSpaApplication.class, args);
 	}
 
-	@Bean
-	public TaskScheduler taskScheduler() {
-		final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
-		scheduler.setPoolSize(10);
-		return scheduler;
-	}
+//	@Bean
+//	public TaskScheduler taskScheduler() {
+//		final ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+//		scheduler.setPoolSize(10);
+//		return scheduler;
+//	}
 
 }
