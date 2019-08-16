@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,13 +32,14 @@ public class ShopController {
 	@Autowired
 	private UserRepository userRepository;
 	
-	@PostMapping("/shop")
-	public Shop addshop(@RequestBody Shop newShop, @RequestHeader("Authorization") String token) {
+	@PostMapping("/shop/{shopid}")
+	public Shop addshop(@PathVariable("shopid") Long shopid, @RequestHeader("Authorization") String token) throws Exception {
 		if (token.startsWith("Bearer ")) {
 			token = token.substring(7);
 		}
 		String username = jwtTokenUtil.getUsernameFromToken(token);
 		User  user = userRepository.findByUsername(username);
+		Shop newShop = shopeeApi.shopInfor(shopid);
 		newShop.setUser(user);
 		shopRepository.save(newShop);
 //		userRepository.save(user);

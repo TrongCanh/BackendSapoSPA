@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.crypto.Mac;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
 import com.sapo.dto.ItemV2;
+import com.sapo.dto.ItemsV1;
 import com.sapo.dto.ItemsV2;
 import com.sapo.dto.KeyItem;
 import com.sapo.dto.ShopV2;
@@ -40,12 +42,22 @@ public class ShopeeApi {
 	String timestamp = String.valueOf(Instant.now().getEpochSecond());
 	Logger logger = LoggerFactory.getLogger(ShopeeApi.class);
 
-	public String getItemListV1(int offset, int entries, long shopid) throws IOException {
+	public List<Item> getItemListV1(int offset, int entries, long shopid) throws Exception {
 		String bodyStr = String.format(
 				"{\"pagination_offset\": %d, \"pagination_entries_per_page\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s}",
 				0, 10, Util.PARTNER_ID, shopid, timestamp);
 
-		return callShopeeAPI(Util.GetItemList_URLV1, bodyStr);
+		List<Item> items=gson.fromJson(callShopeeAPI(Util.GetItemList_URLV1, bodyStr), ItemsV1.class).getItems() ;
+		List<Item> listItem= new ArrayList<Item>();
+		for (Item item : items) {
+			item.setItemid(item.getItem_id());
+			Item itemDetails=getItemDetailsV2(item.getItem_id(), item.getShopid());
+			itemDetails.setPrice(itemDetails.getPrice()/100000);
+			itemDetails.setPrice_max(itemDetails.getPrice_max()/100000);
+			itemDetails.setPrice_min(itemDetails.getPrice_min()/100000);
+			listItem.add(itemDetails);
+		}
+		return listItem;
 	}
 
 	public String getItemDetailsV1(long item_id, long shopid) throws IOException {

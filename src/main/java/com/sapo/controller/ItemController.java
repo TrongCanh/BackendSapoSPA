@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,12 +28,37 @@ public class ItemController {
 	ItemRepository itemRepository;
 	@Autowired
 	CategoryRepository categoryRepository;
+	
+	@PutMapping("/getItems/{shop_id}")
+	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
+		List<Item> items= shopeeApi.getItemListV1(0, 50, shopid);
+		for (Item item : items) {
+			Set<Category> categories = item.getCategories();
+			Set<Category> all = categoryRepository.findByItem(item);
+			if (all != null) {
 
-	@GetMapping("/getItems/{shop_id}")
-	public String getItems(@PathVariable("shop_id") Long shopid) throws IOException {
-		return shopeeApi.getItemListV1(0, 50, shopid);
+				for (Category category : all) {
+					categoryRepository.delete(category);
+				}
+				for (Category category : categories) {
+					category.setItem(item);
+				//	categoryRepository.save(category);
+				}
+			}
+			itemRepository.save(item);
+		}
+		return items;
 	}
-
+	@GetMapping("/getItems/{shop_id}")
+	public List<Item> getItems(@PathVariable("shop_id") Long shopid){
+		List<Item> items = itemRepository.findByShopid(shopid);
+		List<Item> list = new ArrayList<Item>();
+		for (Item item : items) {
+			if(item.getShopid()==shopid)
+				list.add(item);			
+		}
+		return items;
+	}
 	@GetMapping("/getItem.v1/{shop_id}/{item_id}")
 	public String getItem1(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid)
 			throws IOException {
@@ -77,7 +103,7 @@ public class ItemController {
 		return item;
 	}
 
-	@GetMapping("/updatePrice/{shop_id}/{item_id}/{price}")
+	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
 	public String updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws IOException {
 		return shopeeApi.updatePrice(itemid, shopid, price);

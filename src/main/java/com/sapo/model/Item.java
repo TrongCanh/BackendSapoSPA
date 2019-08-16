@@ -17,6 +17,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Item {
 	@Id
 	private Long itemid;
+	@JsonIgnore
+	@Transient
+	@Column(nullable = true)
+	private Long item_id;
 	@Column(nullable = true)
 	private String[] images;
 	@Column(nullable = true)
@@ -50,6 +54,14 @@ public class Item {
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private Set<Category> categories = new HashSet<Category>();
+
+	public Long getItem_id() {
+		return item_id;
+	}
+
+	public void setItem_id(Long item_id) {
+		this.item_id = item_id;
+	}
 
 	public Long getItemid() {
 		return itemid;
