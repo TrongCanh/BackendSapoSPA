@@ -62,12 +62,15 @@ public class ShopeeApi {
 			item.setRating_count(item_rating.getRating_count());
 			item.setRating_star(item_rating.getRating_star());
 		}
-		// itemRepository.save(item);
-		
+		//itemRepository.save(item);
+		String[] image = item.getImages();
+		for (int i = 0; i < image.length; i++) {
+			image[i] = "https://cf.shopee.vn/file/" + image[i];
+		}
 		return item;
 	}
 
-	public List<KeyItem> getRivals( long itemid, Long shopid) throws Exception, Exception {
+	public List<KeyItem> getRivals(long itemid, Long shopid) throws Exception, Exception {
 		String name = getItemDetailsV2(itemid, shopid).getName();
 		String url = "https://shopee.vn/api/v2/search_items/?by=relevancy&keyword=" + encodeValue(name)
 				+ "&newest=0&order=desc&page_type=search";

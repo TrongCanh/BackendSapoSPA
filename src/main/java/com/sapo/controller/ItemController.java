@@ -42,10 +42,6 @@ public class ItemController {
 	@GetMapping("/getItem.v2/{shop_id}/{item_id}")
 	public Item getItem2(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid) throws Exception {
 		Item item = shopeeApi.getItemDetailsV2(itemid, shopid);
-		String[] image = item.getImages();
-		for (int i = 0; i < image.length; i++) {
-			image[i] = "https://cf.shopee.vn/file/" + image[i];
-		}
 		Set<Category> categories = item.getCategories();
 		Set<Category> all = categoryRepository.findByItem(item);
 		if (all != null) {
