@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.sapo.util.Util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -19,10 +20,8 @@ public class JwtTokenUtil implements Serializable {
 
 	private static final long serialVersionUID = -2550185165626007488L;
 	
-	public static final long JWT_TOKEN_VALIDITY = 5*60*60;
+	public static final long JWT_TOKEN_VALIDITY = 24*60*60;
 
-	@Value("${jwt.secret}")
-	private String secret;
 	public String getIdFromToken(String token) {
 		return getClaimFromToken(token, Claims::getId);
 	}
@@ -44,7 +43,7 @@ public class JwtTokenUtil implements Serializable {
 	}
 
 	private Claims getAllClaimsFromToken(String token) {
-		return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+		return Jwts.parser().setSigningKey(Util.secret).parseClaimsJws(token).getBody();
 	}
 
 	private Boolean isTokenExpired(String token) {
@@ -65,7 +64,7 @@ public class JwtTokenUtil implements Serializable {
 	private String doGenerateToken(Map<String, Object> claims, String subject) {
 
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY*1000)).signWith(SignatureAlgorithm.HS512, secret).compact();
+				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY*1000)).signWith(SignatureAlgorithm.HS512, Util.secret).compact();
 	}
 
 	public Boolean canTokenBeRefreshed(String token) {

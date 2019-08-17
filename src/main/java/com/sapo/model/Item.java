@@ -1,10 +1,14 @@
 package com.sapo.model;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,189 +16,184 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 public class Item {
 	@Id
-	private Long item_id;
-	@Transient
-	@JsonIgnore
-	@Column(nullable = true)
 	private Long itemid;
+	@JsonIgnore
+	@Transient
 	@Column(nullable = true)
-	private Long shopid;
-	@Column(nullable = true)
-	private String status;
-	@Column(nullable = true)
-	private String item_sku;
-	@Column(nullable = true)
-	private String name;
-	@Column(nullable = true)
-	private String description;
+	private Long item_id;
 	@Column(nullable = true)
 	private String[] images;
 	@Column(nullable = true)
+	private String name;
+	@Column(nullable = true)
+	private Long shopid;
+	@Column(nullable = true)
+	private String brand;
+	@Column(nullable = true)
 	private float price;
+	@Column(nullable = true)
+	private float rating_star;
+	@Column(nullable = true)
+	private int[] rating_count;
+	@JsonIgnore
+	@Transient
+	@Column(nullable = true)
+	private Rating item_rating;
+	@Column(nullable = true)
+	private int historical_sold;
+	@Column(nullable = true)
+	private int sold;
+	@Column(nullable = true)
+	private float price_max;
+	@Column(nullable = true)
+	private float price_min;
+	@Column(nullable = true)
+	private String discount;
 	@Column(nullable = true)
 	private int stock;
 	@Column(nullable = true)
-	private int create_time;
-	@Column(nullable = true)
-	private int update_time;
-	@Column(nullable = true)
-	private float weight;
-	@Column(nullable = true)
-	private Long category_id;
-	@Column(nullable = true)
-	private float original_price;
-//	@Column(nullable = true)
-//	@OneToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY, mappedBy = "item")
-//    @JsonIgnore
-//	private Set<Variation> variations = new HashSet<Variation>();
-	@Column(nullable = true)
-    private float rating_star;
-	@Column(nullable = true)
-	private int cmt_count;
-	@Column(nullable = true)
-	private int sales;
-	@Column(nullable = true)
-	private int views;
-	@Column(nullable = true)
-	private int likes;
-	@Column(nullable = true)
-	private int days_to_ship;
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
+	private Set<Category> categories = new HashSet<Category>();
+
 	public Long getItem_id() {
 		return item_id;
 	}
+
 	public void setItem_id(Long item_id) {
 		this.item_id = item_id;
 	}
-	public Long getShopid() {
-		return shopid;
+
+	public Long getItemid() {
+		return itemid;
 	}
-	public void setShopid(Long shopid) {
-		this.shopid = shopid;
+
+	public void setItemid(Long itemid) {
+		this.itemid = itemid;
 	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
-	public String getItem_sku() {
-		return item_sku;
-	}
-	public void setItem_sku(String item_sku) {
-		this.item_sku = item_sku;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
+
 	public String[] getImages() {
 		return images;
 	}
+
 	public void setImages(String[] images) {
 		this.images = images;
 	}
+
 	public float getPrice() {
 		return price;
 	}
+
 	public void setPrice(float price) {
 		this.price = price;
 	}
-	public int getStock() {
-		return stock;
-	}
-	public void setStock(int stock) {
-		this.stock = stock;
-	}
-	public int getCreate_time() {
-		return create_time;
-	}
-	public void setCreate_time(int create_time) {
-		this.create_time = create_time;
-	}
-	public int getUpdate_time() {
-		return update_time;
-	}
-	public void setUpdate_time(int update_time) {
-		this.update_time = update_time;
-	}
-	public float getWeight() {
-		return weight;
-	}
-	public void setWeight(float weight) {
-		this.weight = weight;
-	}
-	public Long getCategory_id() {
-		return category_id;
-	}
-	public void setCategory_id(Long category_id) {
-		this.category_id = category_id;
-	}
-	public float getOriginal_price() {
-		return original_price;
-	}
-	public void setOriginal_price(float original_price) {
-		this.original_price = original_price;
-	}
-//	public Set<Variation> getVariations() {
-//		return variations;
-//	}
-//	public void setVariations(Set<Variation> variations) {
-//		this.variations = variations;
-//	}
+
 	public float getRating_star() {
 		return rating_star;
 	}
+
 	public void setRating_star(float rating_star) {
 		this.rating_star = rating_star;
 	}
-	public int getCmt_count() {
-		return cmt_count;
+
+	public int[] getRating_count() {
+		return rating_count;
 	}
-	public void setCmt_count(int cmt_count) {
-		this.cmt_count = cmt_count;
+
+	public void setRating_count(int[] rating_count) {
+		this.rating_count = rating_count;
 	}
-	public int getSales() {
-		return sales;
+
+	public Rating getItem_rating() {
+		return item_rating;
 	}
-	public void setSales(int sales) {
-		this.sales = sales;
+
+	public void setItem_rating(Rating item_rating) {
+		this.item_rating = item_rating;
 	}
-	public int getViews() {
-		return views;
+
+	public int getHistorical_sold() {
+		return historical_sold;
 	}
-	public void setViews(int views) {
-		this.views = views;
+
+	public void setHistorical_sold(int historical_sold) {
+		this.historical_sold = historical_sold;
 	}
-	public int getLikes() {
-		return likes;
+
+	public float getPrice_max() {
+		return price_max;
 	}
-	public void setLikes(int likes) {
-		this.likes = likes;
+
+	public void setPrice_max(float price_max) {
+		this.price_max = price_max;
 	}
-	public int getDays_to_ship() {
-		return days_to_ship;
+
+	public float getPrice_min() {
+		return price_min;
 	}
-	public void setDays_to_ship(int days_to_ship) {
-		this.days_to_ship = days_to_ship;
+
+	public void setPrice_min(float price_min) {
+		this.price_min = price_min;
 	}
+
+	public String getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(String discount) {
+		this.discount = discount;
+	}
+
+	public int getStock() {
+		return stock;
+	}
+
+	public void setStock(int stock) {
+		this.stock = stock;
+	}
+
+	public Set<Category> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Set<Category> categories) {
+		this.categories = categories;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public Long getShopid() {
+		return shopid;
+	}
+
+	public void setShopid(Long shopid) {
+		this.shopid = shopid;
+	}
+
+	public int getSold() {
+		return sold;
+	}
+
+	public void setSold(int sold) {
+		this.sold = sold;
+	}
+
 	public Item() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Long getItemid() {
-		return itemid;
-	}
-	public void setItemid(Long itemid) {
-		this.itemid = itemid;
-	}
-	
-		
+
 }
