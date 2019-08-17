@@ -98,7 +98,12 @@ public class ItemController {
 		}
 		return items;
 	}
-
+	@GetMapping("/item/{shop_id}/{item_id}")
+	public Item getItem(@PathVariable("item_id") Long item_id, @PathVariable("shop_id") Long shop_id)
+			throws Exception {
+		Item item = shopeeApi.getItemDetailsV2(item_id, shop_id);
+		return item;
+	}
 	@PostMapping("/item")
 	public Item postItem(@RequestBody Item item) throws Exception {
 		itemRepository.save(item);
