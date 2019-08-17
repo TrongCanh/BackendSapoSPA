@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sapo.dto.KeyItem;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
-import com.sapo.model.PriceItem;
 import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemRepository;
 import com.sapo.shopee.ShopeeApi;
@@ -29,9 +28,10 @@ public class ItemController {
 	ItemRepository itemRepository;
 	@Autowired
 	CategoryRepository categoryRepository;
+	
 	@PutMapping("/getItems/{shop_id}")
 	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
-		List<Item> items = shopeeApi.getItemListV1(0, 50, shopid);
+		List<Item> items= shopeeApi.getItemListV1(0, 50, shopid);
 		for (Item item : items) {
 			Set<Category> categories = item.getCategories();
 			Set<Category> all = categoryRepository.findByItem(item);
@@ -42,25 +42,23 @@ public class ItemController {
 				}
 				for (Category category : categories) {
 					category.setItem(item);
-					// categoryRepository.save(category);
+				//	categoryRepository.save(category);
 				}
 			}
 			itemRepository.save(item);
 		}
 		return items;
 	}
-
 	@GetMapping("/getItems/{shop_id}")
-	public List<Item> getItems(@PathVariable("shop_id") Long shopid) {
+	public List<Item> getItems(@PathVariable("shop_id") Long shopid){
 		List<Item> items = itemRepository.findByShopid(shopid);
 		List<Item> list = new ArrayList<Item>();
 		for (Item item : items) {
-			if (item.getShopid() == shopid)
-				list.add(item);
+			if(item.getShopid()==shopid)
+				list.add(item);			
 		}
 		return items;
 	}
-
 	@GetMapping("/getItem.v1/{shop_id}/{item_id}")
 	public String getItem1(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid)
 			throws IOException {
@@ -80,7 +78,7 @@ public class ItemController {
 			}
 			for (Category category : categories) {
 				category.setItem(item);
-				// categoryRepository.save(category);
+			//	categoryRepository.save(category);
 			}
 		}
 		itemRepository.save(item);
@@ -98,39 +96,12 @@ public class ItemController {
 		}
 		return items;
 	}
-
 	@GetMapping("/item/{shop_id}/{item_id}")
-	public Item getItem(@PathVariable("item_id") Long item_id, @PathVariable("shop_id") Long shop_id) throws Exception {
-		Item item = shopeeApi.getItemDetailsV2(item_id, shop_id);
-		return item;
-	}
-
-	@PostMapping("/item/{shop_id}/{item_id}")
-	public Item postItem(@PathVariable("item_id") Long item_id, @PathVariable("shop_id") Long shop_id)
+	public Item getItem(@PathVariable("item_id") Long item_id, @PathVariable("shop_id") Long shop_id)
 			throws Exception {
 		Item item = shopeeApi.getItemDetailsV2(item_id, shop_id);
-		Set<Category> categories = item.getCategories();
-		Set<Category> all = categoryRepository.findByItem(item);
-		if (all != null) {
-
-			for (Category category : all) {
-				categoryRepository.delete(category);
-			}
-			for (Category category : categories) {
-				category.setItem(item);
-				// categoryRepository.save(category);
-			}
-		}
-		Set<PriceItem> priceItems = item.getPriceItems();
-		PriceItem priceItem = new PriceItem();
-		priceItem.setDate(new java.util.Date());
-		priceItem.setItem(item);
-		priceItem.setPrice(item.getPrice());
-		priceItems.add(priceItem);
-		itemRepository.save(item);
 		return item;
 	}
-
 	@PostMapping("/item")
 	public Item postItem(@RequestBody Item item) throws Exception {
 		itemRepository.save(item);

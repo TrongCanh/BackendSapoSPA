@@ -30,7 +30,7 @@ public class Item {
 	@Column(nullable = true)
 	private String brand;
 	@Column(nullable = true)
-	private double price;
+	private float price;
 	@Column(nullable = true)
 	private float rating_star;
 	@Column(nullable = true)
@@ -44,9 +44,9 @@ public class Item {
 	@Column(nullable = true)
 	private int sold;
 	@Column(nullable = true)
-	private double price_max;
+	private float price_max;
 	@Column(nullable = true)
-	private double price_min;
+	private float price_min;
 	@Column(nullable = true)
 	private String discount;
 	@Column(nullable = true)
@@ -54,17 +54,6 @@ public class Item {
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private Set<Category> categories = new HashSet<Category>();
-	@Column(nullable = true)
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
-	private Set<PriceItem> priceItems = new HashSet<PriceItem>();
-
-	public Set<PriceItem> getPriceItems() {
-		return priceItems;
-	}
-
-	public void setPriceItems(Set<PriceItem> priceItems) {
-		this.priceItems = priceItems;
-	}
 
 	public Long getItem_id() {
 		return item_id;
@@ -90,36 +79,11 @@ public class Item {
 		this.images = images;
 	}
 
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Long getShopid() {
-		return shopid;
-	}
-
-	public void setShopid(Long shopid) {
-		this.shopid = shopid;
-	}
-
-	public String getBrand() {
-		return brand;
-	}
-
-	public void setBrand(String brand) {
-		this.brand = brand;
-	}
-
-	public double getPrice() {
+	public float getPrice() {
 		return price;
 	}
 
-	public void setPrice(double price) {
+	public void setPrice(float price) {
 		this.price = price;
 	}
 
@@ -155,27 +119,19 @@ public class Item {
 		this.historical_sold = historical_sold;
 	}
 
-	public int getSold() {
-		return sold;
-	}
-
-	public void setSold(int sold) {
-		this.sold = sold;
-	}
-
-	public double getPrice_max() {
+	public float getPrice_max() {
 		return price_max;
 	}
 
-	public void setPrice_max(double price_max) {
+	public void setPrice_max(float price_max) {
 		this.price_max = price_max;
 	}
 
-	public double getPrice_min() {
+	public float getPrice_min() {
 		return price_min;
 	}
 
-	public void setPrice_min(double price_min) {
+	public void setPrice_min(float price_min) {
 		this.price_min = price_min;
 	}
 
@@ -201,6 +157,38 @@ public class Item {
 
 	public void setCategories(Set<Category> categories) {
 		this.categories = categories;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getBrand() {
+		return brand;
+	}
+
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+
+	public Long getShopid() {
+		return shopid;
+	}
+
+	public void setShopid(Long shopid) {
+		this.shopid = shopid;
+	}
+
+	public int getSold() {
+		return sold;
+	}
+
+	public void setSold(int sold) {
+		this.sold = sold;
 	}
 
 	public Item() {
