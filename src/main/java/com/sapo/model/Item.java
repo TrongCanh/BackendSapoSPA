@@ -30,7 +30,7 @@ public class Item {
 	@Column(nullable = true)
 	private String brand;
 	@Column(nullable = true)
-	private float price;
+	private double price;
 	@Column(nullable = true)
 	private float rating_star;
 	@Column(nullable = true)
@@ -44,9 +44,13 @@ public class Item {
 	@Column(nullable = true)
 	private int sold;
 	@Column(nullable = true)
-	private float price_max;
+	private double price_max;
 	@Column(nullable = true)
-	private float price_min;
+	private double price_min;
+	@Column(nullable = true)
+	private double max;
+	@Column(nullable = true)
+	private double min;
 	@Column(nullable = true)
 	private String discount;
 	@Column(nullable = true)
@@ -54,6 +58,36 @@ public class Item {
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private Set<Category> categories = new HashSet<Category>();
+	@Column(nullable = true)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
+	private Set<ItemPrice> itemPrices = new HashSet<ItemPrice>();
+	@Transient
+	@Column(nullable = true)
+	private ItemPrice itemPrice;
+
+	public ItemPrice getItemPrice() {
+		return itemPrice;
+	}
+
+	public double getMax() {
+		return max;
+	}
+
+	public void setMax(double max) {
+		this.max = max;
+	}
+
+	public double getMin() {
+		return min;
+	}
+
+	public void setMin(double min) {
+		this.min = min;
+	}
+
+	public void setItemPrice(ItemPrice itemPrice) {
+		this.itemPrice = itemPrice;
+	}
 
 	public Long getItem_id() {
 		return item_id;
@@ -79,11 +113,11 @@ public class Item {
 		this.images = images;
 	}
 
-	public float getPrice() {
+	public double getPrice() {
 		return price;
 	}
 
-	public void setPrice(float price) {
+	public void setPrice(double price) {
 		this.price = price;
 	}
 
@@ -119,19 +153,19 @@ public class Item {
 		this.historical_sold = historical_sold;
 	}
 
-	public float getPrice_max() {
+	public double getPrice_max() {
 		return price_max;
 	}
 
-	public void setPrice_max(float price_max) {
+	public void setPrice_max(double price_max) {
 		this.price_max = price_max;
 	}
 
-	public float getPrice_min() {
+	public double getPrice_min() {
 		return price_min;
 	}
 
-	public void setPrice_min(float price_min) {
+	public void setPrice_min(double price_min) {
 		this.price_min = price_min;
 	}
 
@@ -189,6 +223,14 @@ public class Item {
 
 	public void setSold(int sold) {
 		this.sold = sold;
+	}
+
+	public Set<ItemPrice> getItemPrices() {
+		return itemPrices;
+	}
+
+	public void setItemPrices(Set<ItemPrice> itemPrices) {
+		this.itemPrices = itemPrices;
 	}
 
 	public Item() {

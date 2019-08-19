@@ -11,7 +11,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -28,9 +30,12 @@ import com.sapo.dto.ItemsV2;
 import com.sapo.dto.KeyItem;
 import com.sapo.dto.ShopV2;
 import com.sapo.dto.Shop_covers;
+import com.sapo.model.Category;
 import com.sapo.model.Item;
+import com.sapo.model.ItemPrice;
 import com.sapo.model.Rating;
 import com.sapo.model.Shop;
+import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemRepository;
 import com.sapo.util.Util;
 
@@ -38,6 +43,8 @@ import com.sapo.util.Util;
 public class ShopeeApi {
 	@Autowired
 	ItemRepository itemRepository;
+	@Autowired
+	CategoryRepository categoryRepository;
 	Gson gson = new Gson();
 	String timestamp = String.valueOf(Instant.now().getEpochSecond());
 	Logger logger = LoggerFactory.getLogger(ShopeeApi.class);
@@ -47,14 +54,11 @@ public class ShopeeApi {
 				"{\"pagination_offset\": %d, \"pagination_entries_per_page\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s}",
 				0, 10, Util.PARTNER_ID, shopid, timestamp);
 
-		List<Item> items=gson.fromJson(callShopeeAPI(Util.GetItemList_URLV1, bodyStr), ItemsV1.class).getItems() ;
-		List<Item> listItem= new ArrayList<Item>();
+		List<Item> items = gson.fromJson(callShopeeAPI(Util.GetItemList_URLV1, bodyStr), ItemsV1.class).getItems();
+		List<Item> listItem = new ArrayList<Item>();
 		for (Item item : items) {
 			item.setItemid(item.getItem_id());
-			Item itemDetails=getItemDetailsV2(item.getItem_id(), item.getShopid());
-			itemDetails.setPrice(itemDetails.getPrice()/100000);
-			itemDetails.setPrice_max(itemDetails.getPrice_max()/100000);
-			itemDetails.setPrice_min(itemDetails.getPrice_min()/100000);
+			Item itemDetails = getItemDetailsV2(item.getItem_id(), item.getShopid());
 			listItem.add(itemDetails);
 		}
 		return listItem;
@@ -74,11 +78,21 @@ public class ShopeeApi {
 			item.setRating_count(item_rating.getRating_count());
 			item.setRating_star(item_rating.getRating_star());
 		}
-		//itemRepository.save(item);
+		// itemRepository.save(item);
 		String[] image = item.getImages();
 		for (int i = 0; i < image.length; i++) {
 			image[i] = "https://cf.shopee.vn/file/" + image[i];
 		}
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.HOUR, 7);
+		item.setPrice(item.getPrice() / 100000);
+		item.setPrice_max(item.getPrice_max() / 100000);
+		item.setPrice_min(item.getPrice_min() / 100000);
+		ItemPrice itemPrice = new ItemPrice();
+		itemPrice.setDate(cal.getTime());
+		itemPrice.setItem(item);
+		itemPrice.setPrice(item.getPrice());
+		item.setItemPrice(itemPrice);
 		return item;
 	}
 
@@ -109,12 +123,27 @@ public class ShopeeApi {
 		return shop;
 	}
 
-	public String updatePrice(Long ITEM_ID, Long SHOP_ID, float price) throws IOException {
+	public Item updatePrice(Long ITEM_ID, Long SHOP_ID, float price) throws Exception {
 		String jsonInputString = String.format(
 				"{\"item_id\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s, \"price\" :%f}", ITEM_ID,
 				Util.PARTNER_ID, SHOP_ID, timestamp, price);
-		return callShopeeAPI(Util.UpdatePrice, jsonInputString);
+		callShopeeAPI(Util.UpdatePrice, jsonInputString);
+		Item item = getItemDetailsV2(ITEM_ID, SHOP_ID);
+//		Set<Category> categories = item.getCategories();
+//		Set<Category> all = categoryRepository.findByItem(item);
+//		if (all != null) {
+//
+//			for (Category category : all) {
+//				categoryRepository.delete(category);
+//			}
+//			for (Category category : categories) {
+//				category.setItem(item);
+//				// categoryRepository.save(category);
+//			}
+//		}
+//		itemRepository.save(item);
 
+		return item;
 	}
 
 	public String callApi(String url) throws Exception {
