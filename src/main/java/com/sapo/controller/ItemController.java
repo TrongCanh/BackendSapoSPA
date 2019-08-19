@@ -38,7 +38,7 @@ public class ItemController {
 
 	@PutMapping("/getItems/{shop_id}")
 	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
-		List<Item> items = shopeeApi.getItemListV1(0, 50, shopid);
+		List<Item> items = shopeeApi.getItemListV2(shopid);
 //		List<Item> list = new ArrayList<Item>();
 		for (Item item : items) {
 			Set<Category> categories = item.getCategories();
@@ -174,19 +174,21 @@ public class ItemController {
 	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws Exception {
 		Item item = shopeeApi.updatePrice(itemid, shopid, price);
-		Set<Category> categories = item.getCategories();
-		Set<Category> all = categoryRepository.findByItem(item);
-		if (all != null) {
+		if (item != null) {
+			Set<Category> categories = item.getCategories();
+			Set<Category> all = categoryRepository.findByItem(item);
+			if (all != null) {
 
-			for (Category category : all) {
-				categoryRepository.delete(category);
+				for (Category category : all) {
+					categoryRepository.delete(category);
+				}
+				for (Category category : categories) {
+					category.setItem(item);
+					// categoryRepository.save(category);
+				}
 			}
-			for (Category category : categories) {
-				category.setItem(item);
-				// categoryRepository.save(category);
-			}
+			itemRepository.save(item);
 		}
-		itemRepository.save(item);
 		return item;
 	}
 
