@@ -63,17 +63,29 @@ public class ItemController {
 	@GetMapping("/getItems/{shop_id}")
 	public List<Item> getItems(@PathVariable("shop_id") Long shopid) {
 		List<Item> items = itemRepository.findByShopid(shopid);
-		List<Item> list = new ArrayList<Item>();
-		for (Item item : items) {
-			if (item.getShopid() == shopid)
-				list.add(item);
-		}
 		return items;
 	}
 
 	@GetMapping("/item/{shopid}/{itemid}")
 	public Item getItem(@PathVariable("shopid") Long shopid, @PathVariable("itemid") Long itemid) throws Exception {
-		return shopeeApi.getItemDetailsV2(itemid, shopid);
+		Item item = shopeeApi.getItemDetailsV2(itemid, shopid);
+		Set<Category> categories = item.getCategories();
+		Set<Category> all = categoryRepository.findByItem(item);
+		if (all != null) {
+
+			for (Category category : all) {
+				categoryRepository.delete(category);
+			}
+			for (Category category : categories) {
+				category.setItem(item);
+			}
+		}
+//		Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+//		priceList.add(item.getItemPrice());
+//		item.setItemPrices(priceList);
+		itemRepository.save(item);
+
+		return item;
 	}
 
 	@GetMapping("/getItem.v1/{shopid}/{itemid}")
@@ -121,11 +133,27 @@ public class ItemController {
 	}
 
 	@PostMapping("/rival")
-	public Rival postRival(@RequestBody Rival rival) {
+	public Rival postRival(@RequestBody Rival rival) throws Exception {
 		if (rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival()) == null) {
 			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getOpponent(), rival.getRival());
 			rivalRepository.save(newRival);
 		}
+		Item item = shopeeApi.getItemDetailsV2(rival.getRival(), rival.getOpponent());
+		Set<Category> categories = item.getCategories();
+		Set<Category> all = categoryRepository.findByItem(item);
+		if (all != null) {
+
+			for (Category category : all) {
+				categoryRepository.delete(category);
+			}
+			for (Category category : categories) {
+				category.setItem(item);
+			}
+		}
+//		Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+//		priceList.add(item.getItemPrice());
+//		item.setItemPrices(priceList);
+		itemRepository.save(item);
 
 		return rival;
 	}

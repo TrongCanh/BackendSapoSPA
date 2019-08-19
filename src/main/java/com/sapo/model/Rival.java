@@ -55,6 +55,11 @@ public class Rival {
 	public void setShopid(long shopid) {
 		this.shopid = shopid;
 	}
+	
+	public Rival() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 	public Rival(long itemid, long shopid, long opponent, long rival) {
 		super();
 		this.itemid = itemid;
