@@ -57,7 +57,7 @@ public class UserController {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-		if(userDetails==null)
+		if (userDetails == null)
 			return ResponseEntity.badRequest().body("Tài khoản không tồn tại");
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
@@ -65,14 +65,14 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@RequestBody UserRegisterDTO user) throws Exception {	
-		
-		if(userRepository.findByEmail(user.getEmail())!=null)
+	public ResponseEntity<?> saveUser(@RequestBody UserRegisterDTO user) throws Exception {
+
+		if (userRepository.findByEmail(user.getEmail()) != null)
 			return (ResponseEntity<?>) ResponseEntity.badRequest().body("Email đã tồn tại");
-		
-		if(userRepository.findByUsername(user.getUsername())!=null)
+
+		if (userRepository.findByUsername(user.getUsername()) != null)
 			return (ResponseEntity<?>) ResponseEntity.badRequest().body("Username đã tồn tại");
-		
+
 		userDetailsService.save(user);
 		authenticate(user.getUsername(), user.getPassword());
 
@@ -91,18 +91,22 @@ public class UserController {
 		}
 		String username = jwtTokenUtil.getUsernameFromToken(token);
 		User mUser = userRepository.findByUsername(username);
-		if (user.getPhone()!=null) {
+		if (user.getPhone() != null) {
 			mUser.setPhone(user.getPhone());
 		}
-		if (user.getPassword()!=null) {
+		if (user.getPassword() != null) {
 			mUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+		}
+		if (user.getName() != null) {
+			mUser.setName(user.getName());
 		}
 		userRepository.save(mUser);
 
 		return mUser;
 	}
+
 	@GetMapping("/infor")
-	public User userInfor( @RequestHeader("Authorization") String token) {
+	public User userInfor(@RequestHeader("Authorization") String token) {
 		if (token.startsWith("Bearer ")) {
 			token = token.substring(7);
 		}
@@ -110,6 +114,7 @@ public class UserController {
 		User user = userRepository.findByUsername(username);
 		return user;
 	}
+
 	@PutMapping("/forget")
 	public String forgotPass(@RequestBody ForgotPassDTO userDTO) {
 		User user = userRepository.findByEmail(userDTO.getEmail());

@@ -23,6 +23,7 @@ public class User {
 	private String phone;
 	private String email;
 	private String username;
+	private String name;
 	private String password;
     @OneToMany(cascade=CascadeType.ALL,fetch = FetchType.LAZY, mappedBy = "user")
     @JsonIgnore
@@ -65,7 +66,12 @@ public class User {
 	public void setShops(Set<Shop> shops) {
 		this.shops = shops;
 	}
-
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + phone + ", email=" + email + ", username=" + username + ", password="

@@ -41,7 +41,6 @@ public class ItemController {
 	@PutMapping("/getItems/{shop_id}")
 	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
 		List<Item> items = shopeeApi.getItemListV2(shopid);
-//		List<Item> list = new ArrayList<Item>();
 		for (Item item : items) {
 			Set<Category> categories = item.getCategories();
 			Set<Category> all = categoryRepository.findByItem(item);
@@ -136,11 +135,11 @@ public class ItemController {
 
 	@PostMapping("/rival")
 	public Rival postRival(@RequestBody Rival rival) throws Exception {
-		if (rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival()) == null) {
-			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getOpponent(), rival.getRival());
+		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid())==null) {
+			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getShopid(), rival.getRivalItemid());
 			rivalRepository.save(newRival);
 		}
-		Item item = shopeeApi.getItemDetailsV2(rival.getRival(), rival.getOpponent());
+		Item item = shopeeApi.getItemDetailsV2(rival.getRivalItemid(), rival.getRivalShopid());
 		Set<Category> categories = item.getCategories();
 		Set<Category> all = categoryRepository.findByItem(item);
 		if (all != null) {
@@ -162,8 +161,8 @@ public class ItemController {
 
 	@PutMapping("/rival")
 	public Rival putRival(@RequestBody Rival rival) {
-		if (rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival()) == null) {
-			Rival newRival = rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival());
+		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
+			Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
 			newRival.setAuto(rival.isAuto());
 			if (rival.isAuto()==true) {
 				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);

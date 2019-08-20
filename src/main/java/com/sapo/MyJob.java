@@ -12,10 +12,12 @@ import com.sapo.model.Category;
 import com.sapo.model.Item;
 import com.sapo.model.ItemPrice;
 import com.sapo.model.Rival;
+import com.sapo.model.Shop;
 import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemPriceRepository;
 import com.sapo.repository.ItemRepository;
 import com.sapo.repository.RivalRepository;
+import com.sapo.repository.ShopRepository;
 import com.sapo.shopee.ShopeeApi;
 
 @Component
@@ -29,34 +31,60 @@ public class MyJob {
 	@Autowired
 	ItemRepository itemRepository;
 	@Autowired
+	ShopRepository shopRepository;
+	@Autowired
 	ItemPriceRepository itemPriceRepository;
 
 	@Scheduled(cron = "0 */1 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {
-			Item item = shopeeApi.getItemDetailsV2(rival.getRival(), rival.getOpponent());
-			Set<Category> categories = item.getCategories();
-			Set<Category> all = categoryRepository.findByItem(item);
-			if (all != null) {
+			Item item = shopeeApi.getItemDetailsV2(rival.getRivalItemid(), rival.getRivalShopid());
+			if (item != null) {
+				Set<Category> categories = item.getCategories();
+				Set<Category> all = categoryRepository.findByItem(item);
+				if (all != null) {
 
-				for (Category category : all) {
-					categoryRepository.delete(category);
+					for (Category category : all) {
+						categoryRepository.delete(category);
+					}
+					for (Category category : categories) {
+						category.setItem(item);
+					}
 				}
-				for (Category category : categories) {
-					category.setItem(item);
-				}
-			}
-			List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
-			if (priceList.size() > 0) {
-				if (priceList.get(priceList.size() - 1).getPrice() != item.getItemPrice().getPrice()
-						&& rival.isAuto()) {
+				List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+				if (priceList.size() > 0) {
+					if (priceList.get(priceList.size() - 1).getPrice() != item.getItemPrice().getPrice()
+							&& rival.isAuto()) {
 
+					}
 				}
+				priceList.add(item.getItemPrice());
+				item.setItemPrices(priceList);
+				itemRepository.save(item);
 			}
-			priceList.add(item.getItemPrice());
-			item.setItemPrices(priceList);
-			itemRepository.save(item);
+
+		}
+		List<Shop> shops = shopRepository.findAll();
+		for (Shop shop : shops) {
+			List<Item> items = shopeeApi.getItemListV2(shop.getShopid());
+			for (Item item : items) {
+				Set<Category> categories = item.getCategories();
+				Set<Category> all = categoryRepository.findByItem(item);
+				if (all != null) {
+
+					for (Category category : all) {
+						categoryRepository.delete(category);
+					}
+					for (Category category : categories) {
+						category.setItem(item);
+					}
+				}
+				List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+				priceList.add(item.getItemPrice());
+				item.setItemPrices(priceList);
+				itemRepository.save(item);
+			}
 		}
 		System.out.println("Task1 - " + new Date());
 	}
