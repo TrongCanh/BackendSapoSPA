@@ -17,8 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sapo.dto.KeyItem;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
+import com.sapo.model.ItemPrice;
+import com.sapo.model.Rival;
 import com.sapo.repository.CategoryRepository;
+import com.sapo.repository.ItemPriceRepository;
 import com.sapo.repository.ItemRepository;
+import com.sapo.repository.RivalRepository;
 import com.sapo.shopee.ShopeeApi;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -29,10 +33,15 @@ public class ItemController {
 	ItemRepository itemRepository;
 	@Autowired
 	CategoryRepository categoryRepository;
-	
+	@Autowired
+	ItemPriceRepository itemPriceRepository;
+	@Autowired
+	RivalRepository rivalRepository;
+
 	@PutMapping("/getItems/{shop_id}")
 	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
-		List<Item> items= shopeeApi.getItemListV1(0, 50, shopid);
+		List<Item> items = shopeeApi.getItemListV2(shopid);
+//		List<Item> list = new ArrayList<Item>();
 		for (Item item : items) {
 			Set<Category> categories = item.getCategories();
 			Set<Category> all = categoryRepository.findByItem(item);
@@ -43,25 +52,46 @@ public class ItemController {
 				}
 				for (Category category : categories) {
 					category.setItem(item);
-				//	categoryRepository.save(category);
 				}
 			}
+//			Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+//			priceList.add(item.getItemPrice());
+//			item.setItemPrices(priceList);
 			itemRepository.save(item);
 		}
 		return items;
 	}
+
 	@GetMapping("/getItems/{shop_id}")
-	public List<Item> getItems(@PathVariable("shop_id") Long shopid){
+	public List<Item> getItems(@PathVariable("shop_id") Long shopid) {
 		List<Item> items = itemRepository.findByShopid(shopid);
-		List<Item> list = new ArrayList<Item>();
-		for (Item item : items) {
-			if(item.getShopid()==shopid)
-				list.add(item);			
-		}
 		return items;
 	}
-	@GetMapping("/getItem.v1/{shop_id}/{item_id}")
-	public String getItem1(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid)
+
+	@GetMapping("/item/{shopid}/{itemid}")
+	public Item getItem(@PathVariable("shopid") Long shopid, @PathVariable("itemid") Long itemid) throws Exception {
+		Item item = shopeeApi.getItemDetailsV2(itemid, shopid);
+		Set<Category> categories = item.getCategories();
+		Set<Category> all = categoryRepository.findByItem(item);
+		if (all != null) {
+
+			for (Category category : all) {
+				categoryRepository.delete(category);
+			}
+			for (Category category : categories) {
+				category.setItem(item);
+			}
+		}
+//		Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+//		priceList.add(item.getItemPrice());
+//		item.setItemPrices(priceList);
+		itemRepository.save(item);
+
+		return item;
+	}
+
+	@GetMapping("/getItem.v1/{shopid}/{itemid}")
+	public String getItem1(@PathVariable("shopid") Long shopid, @PathVariable("itemid") Long itemid)
 			throws IOException {
 		return shopeeApi.getItemDetailsV1(itemid, shopid);
 	}
@@ -79,7 +109,7 @@ public class ItemController {
 			}
 			for (Category category : categories) {
 				category.setItem(item);
-			//	categoryRepository.save(category);
+				// categoryRepository.save(category);
 			}
 		}
 		itemRepository.save(item);
@@ -97,21 +127,66 @@ public class ItemController {
 		}
 		return items;
 	}
-	@GetMapping("/item/{shop_id}/{item_id}")
-	public Item getItem(@PathVariable("item_id") Long item_id, @PathVariable("shop_id") Long shop_id)
-			throws Exception {
-		Item item = shopeeApi.getItemDetailsV2(item_id, shop_id);
-		return item;
-	}
+
 	@PostMapping("/item")
 	public Item postItem(@RequestBody Item item) throws Exception {
 		itemRepository.save(item);
 		return item;
 	}
 
-	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
-	public String updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
-			@PathVariable("price") float price) throws IOException {
-		return shopeeApi.updatePrice(itemid, shopid, price);
+	@PostMapping("/rival")
+	public Rival postRival(@RequestBody Rival rival) throws Exception {
+		if (rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival()) == null) {
+			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getOpponent(), rival.getRival());
+			rivalRepository.save(newRival);
+		}
+		Item item = shopeeApi.getItemDetailsV2(rival.getRival(), rival.getOpponent());
+		Set<Category> categories = item.getCategories();
+		Set<Category> all = categoryRepository.findByItem(item);
+		if (all != null) {
+
+			for (Category category : all) {
+				categoryRepository.delete(category);
+			}
+			for (Category category : categories) {
+				category.setItem(item);
+			}
+		}
+//		Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
+//		priceList.add(item.getItemPrice());
+//		item.setItemPrices(priceList);
+		itemRepository.save(item);
+
+		return rival;
 	}
+
+	@PutMapping("/rival")
+	public Rival putRival(@RequestBody Rival rival) {
+		if (rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival()) == null) {
+			Rival newRival = rivalRepository.findByItemidAndRival(rival.getItemid(), rival.getRival());
+			newRival.setAuto(rival.isAuto());
+			if (rival.isAuto()==true) {
+				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
+				for (Rival rival2 : rivalAuto) {
+					rival2.setAuto(false);
+					rivalRepository.save(rival2);
+				}
+			}
+			newRival.setPrice(rival.getPrice());
+			rivalRepository.save(rival);
+		}
+		return rival;
+	}
+	@GetMapping("/rival/{rival}")
+	public List<ItemPrice> getPriceRival(@PathVariable("rival") Long itemid){
+		Item item = itemRepository.findByItemid(itemid);
+		return item.getItemPrices();
+	}
+	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
+	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
+			@PathVariable("price") float price) throws Exception {
+		Item item = shopeeApi.updatePrice(itemid, shopid, price);
+		return item;
+	}
+
 }

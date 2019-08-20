@@ -45,6 +45,15 @@ public class ShopController {
 //		userRepository.save(user);
 		return newShop;
 	}
+	@GetMapping("/shop/{shopid}")
+	public Shop getshop(@PathVariable("shopid") Long shopid) {
+		return shopRepository.findByShopid(shopid);
+//		for (Shop shop : shops) {
+////			if(shop.getShopid()==shopid)
+//				return shop;
+//		}
+//		return null;
+	}
 	@GetMapping("/shopInfor/{shopid}")
 	public Shop shopInfor(@PathVariable("shopid") Long shopid) throws Exception {
 		return shopeeApi.shopInfor(shopid);

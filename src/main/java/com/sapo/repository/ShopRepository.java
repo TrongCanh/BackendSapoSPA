@@ -10,4 +10,5 @@ import com.sapo.model.Shop;
 @Transactional
 public interface ShopRepository extends JpaRepository<Shop, Long>{
 	Shop findByName(String name);
+	Shop findByShopid(Long id);
 }

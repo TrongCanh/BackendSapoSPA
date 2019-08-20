@@ -6,9 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sapo.model.Item;
+import com.sapo.model.ItemPrice;
+
 @Repository
-public interface ItemRepository extends JpaRepository<Item, Long> {
-	List<Item> findByShopid(Long shopid);
-	Item findByShopidAndItemid(Long shopid , Long itemid);
-	Item findByItemid(Long itemid);
+public interface ItemPriceRepository extends JpaRepository<ItemPrice, Long> {
+	List<ItemPrice> findByItem(Item item);
 }
