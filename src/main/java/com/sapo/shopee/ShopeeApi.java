@@ -111,10 +111,30 @@ public class ShopeeApi {
 	public List<KeyItem> getRivals(long itemid, Long shopid) throws Exception, Exception {
 		String name = getItemDetailsV2(itemid, shopid).getName();
 		String url = "https://shopee.vn/api/v2/search_items/?by=relevancy&keyword=" + encodeValue(name)
-				+ "&newest=0&order=desc&page_type=search";
-		List<KeyItem> items = gson.fromJson(callApi(url), ItemsV2.class).getItems();
+				+ "&newest=0&order=desc&limit=50&page_type=search";
+		List<KeyItem> list = gson.fromJson(callApi(url), ItemsV2.class).getItems();
+		List<KeyItem> items = new ArrayList<KeyItem>();
+		for (KeyItem keyItem : list) {
+			if (keyItem.getAds_keyword()==null) {
+				items.add(keyItem);
+			}
+		}
 		return items;
 	}
+
+//	public List<KeyItem> getRivals(long itemid, Long shopid) throws Exception, Exception {
+//		String name = getItemDetailsV2(itemid, shopid).getName();
+//		String url = "https://shopee.vn/api/v2/search_items/?by=relevancy&keyword=" + encodeValue(name)
+//				+ "&newest=0&order=desc&limit=50&page_type=search";
+//		List<KeyItem> list = gson.fromJson(callApi(url), ItemsV2.class).getItems();
+//		List<KeyItem> items = new ArrayList<KeyItem>();
+//		for (KeyItem keyItem : list) {
+//			if (keyItem.getAds_keyword()==null) {
+//				items.add(keyItem);
+//			}
+//		}
+//		return items;
+//	}
 
 	public Shop shopInfor(long shopid) throws Exception {
 		String url = "https://shopee.vn/api/v2/shop/get?shopid=" + shopid;
@@ -135,7 +155,7 @@ public class ShopeeApi {
 		return shop;
 	}
 
-	public Item updatePrice(Long ITEM_ID, Long SHOP_ID, float price) throws Exception {
+	public Item updatePrice(Long ITEM_ID, Long SHOP_ID, double price) throws Exception {
 		String jsonInputString = String.format(
 				"{\"item_id\": %d,\"partner_id\": %d, \"shopid\": %d, \"timestamp\": %s, \"price\" :%f}", ITEM_ID,
 				Util.PARTNER_ID, SHOP_ID, timestamp, price);
@@ -143,7 +163,7 @@ public class ShopeeApi {
 		if(gson.fromJson(callShopeeAPI(Util.UpdatePrice, jsonInputString), ItemV2.class).getItem()==null){
 			return null;
 		}
-		Thread.sleep(500);
+		Thread.sleep(1000);
 		Item item = getItemDetailsV2(ITEM_ID, SHOP_ID);
 		Set<Category> categories = item.getCategories();
 		Set<Category> all = categoryRepository.findByItem(item);

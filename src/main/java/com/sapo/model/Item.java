@@ -66,6 +66,18 @@ public class Item {
 	@Transient
 	@Column(nullable = true)
 	private ItemPrice itemPrice;
+	@JsonIgnore
+	@Transient
+	@Column(nullable = true)
+	private String ads_keyword;
+
+	public String getAds_keyword() {
+		return ads_keyword;
+	}
+
+	public void setAds_keyword(String ads_keyword) {
+		this.ads_keyword = ads_keyword;
+	}
 
 	public ItemPrice getItemPrice() {
 		return itemPrice;

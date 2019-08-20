@@ -35,7 +35,8 @@ public class MyJob {
 	@Autowired
 	ItemPriceRepository itemPriceRepository;
 
-	@Scheduled(cron = "0 */1 * * * ?")
+//	@Scheduled(cron = "59 59 1 */1 * ?")
+	@Scheduled(cron = "0 */2 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {
@@ -53,14 +54,14 @@ public class MyJob {
 					}
 				}
 				List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
-				if (priceList.size() > 0) {
-					if (priceList.get(priceList.size() - 1).getPrice() != item.getItemPrice().getPrice()
-							&& rival.isAuto()) {
-
-					}
-				}
 				priceList.add(item.getItemPrice());
 				item.setItemPrices(priceList);
+				Item myItem = shopeeApi.getItemDetailsV2(rival.getItemid(), rival.getShopid());
+				if(rival.isAuto()) {
+					if (myItem.getPrice()+rival.getPrice()!=item.getPrice()) {
+						shopeeApi.updatePrice(myItem.getItemid(), myItem.getShopid(), item.getPrice()-rival.getPrice());
+					}
+				}
 				itemRepository.save(item);
 			}
 

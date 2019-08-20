@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,11 +20,14 @@ import com.sapo.model.Category;
 import com.sapo.model.Item;
 import com.sapo.model.ItemPrice;
 import com.sapo.model.Rival;
+import com.sapo.model.Shop;
 import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemPriceRepository;
 import com.sapo.repository.ItemRepository;
 import com.sapo.repository.RivalRepository;
+import com.sapo.repository.ShopRepository;
 import com.sapo.shopee.ShopeeApi;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class ItemController {
@@ -37,6 +41,8 @@ public class ItemController {
 	ItemPriceRepository itemPriceRepository;
 	@Autowired
 	RivalRepository rivalRepository;
+	@Autowired
+	ShopRepository shopRepository;
 
 	@PutMapping("/getItems/{shop_id}")
 	public List<Item> putItems(@PathVariable("shop_id") Long shopid) throws Exception {
@@ -135,8 +141,9 @@ public class ItemController {
 
 	@PostMapping("/rival")
 	public Rival postRival(@RequestBody Rival rival) throws Exception {
-		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid())==null) {
-			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getShopid(), rival.getRivalItemid());
+		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
+			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getRivalShopid(),
+					rival.getRivalItemid());
 			rivalRepository.save(newRival);
 		}
 		Item item = shopeeApi.getItemDetailsV2(rival.getRivalItemid(), rival.getRivalShopid());
@@ -159,12 +166,34 @@ public class ItemController {
 		return rival;
 	}
 
+	@DeleteMapping("/rival")
+	public Item deleteRival(@RequestBody Rival rival) throws Exception {
+		Rival rivalDetails = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
+		Item item = null;
+		if (rivalDetails != null) {
+			item = itemRepository.findByItemid(rivalDetails.getRivalItemid());
+			Shop shop = shopRepository.findByShopid(item.getShopid());
+			if (shop == null) {
+				itemRepository.delete(item);
+			}
+			rivalRepository.delete(rivalDetails);
+		}
+		return item;
+	}
+
+	@DeleteMapping("/item/{item_id}")
+	public Item deleteItem(@PathVariable("item_id") Long item_id) {
+		Item item = itemRepository.findByItemid(item_id);
+		itemRepository.delete(item);
+		return null;
+	}
+
 	@PutMapping("/rival")
 	public Rival putRival(@RequestBody Rival rival) {
 		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
 			Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
 			newRival.setAuto(rival.isAuto());
-			if (rival.isAuto()==true) {
+			if (rival.isAuto() == true) {
 				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
 				for (Rival rival2 : rivalAuto) {
 					rival2.setAuto(false);
@@ -176,11 +205,24 @@ public class ItemController {
 		}
 		return rival;
 	}
+
 	@GetMapping("/rival/{rival}")
-	public List<ItemPrice> getPriceRival(@PathVariable("rival") Long itemid){
+	public List<ItemPrice> getPriceRival(@PathVariable("rival") Long itemid) {
 		Item item = itemRepository.findByItemid(itemid);
 		return item.getItemPrices();
 	}
+
+	@GetMapping("/rival/{shopid}/{itemid}")
+	public List<Item> getRivals(@PathVariable("itemid") Long itemid) {
+		List<Rival> rivals = rivalRepository.findByItemid(itemid);
+		List<Item> items = new ArrayList<Item>();
+		for (Rival rival : rivals) {
+			Item item = itemRepository.findByItemid(rival.getRivalItemid());
+			items.add(item);
+		}
+		return items;
+	}
+
 	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
 	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws Exception {
