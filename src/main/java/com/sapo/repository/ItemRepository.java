@@ -9,4 +9,6 @@ import com.sapo.model.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
 	List<Item> findByShopid(Long shopid);
+	Item findByShopidAndItemid(Long shopid , Long itemid);
+	Item findByItemid(Long itemid);
 }

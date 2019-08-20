@@ -15,8 +15,8 @@ public class Rival {
 	private long id;
 	private long itemid;
 	private long shopid;
-	private long opponent;	//shop
-	private long rival;		//item
+	private long rivalShopid;	//shop
+	private long rivalItemid;		//item
 	private boolean auto;
 	private double price;
 	public long getId() {
@@ -30,18 +30,6 @@ public class Rival {
 	}
 	public void setItemid(long itemid) {
 		this.itemid = itemid;
-	}
-	public long getOpponent() {
-		return opponent;
-	}
-	public void setOpponent(long opponent) {
-		this.opponent = opponent;
-	}
-	public long getRival() {
-		return rival;
-	}
-	public void setRival(long rival) {
-		this.rival = rival;
 	}
 	public boolean isAuto() {
 		return auto;
@@ -66,12 +54,25 @@ public class Rival {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Rival(long itemid, long shopid, long opponent, long rival) {
+	public long getRivalShopid() {
+		return rivalShopid;
+	}
+	public void setRivalShopid(long rivalShopid) {
+		this.rivalShopid = rivalShopid;
+	}
+	public long getRivalItemid() {
+		return rivalItemid;
+	}
+	public void setRivalItemid(long rivalItemid) {
+		this.rivalItemid = rivalItemid;
+	}
+	public Rival(long itemid, long shopid, long rivalShopid, long rivalItemid) {
 		super();
 		this.itemid = itemid;
 		this.shopid = shopid;
-		this.opponent = opponent;
-		this.rival = rival;
+		this.rivalShopid = rivalShopid;
+		this.rivalItemid = rivalItemid;
 	}
+	
 	
 }
