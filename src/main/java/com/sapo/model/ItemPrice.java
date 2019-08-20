@@ -18,6 +18,8 @@ public class ItemPrice {
 	private Long id;
 	private Date date;
 	private double price;
+	private boolean auto;
+	private Long rival; //sửa theo thằng này
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="item_id",nullable = false)
 	@JsonIgnore
@@ -45,6 +47,18 @@ public class ItemPrice {
 	}
 	public void setItem(Item item) {
 		this.item = item;
+	}
+	public boolean isAuto() {
+		return auto;
+	}
+	public void setAuto(boolean auto) {
+		this.auto = auto;
+	}
+	public Long getRival() {
+		return rival;
+	}
+	public void setRival(Long rival) {
+		this.rival = rival;
 	}
 
 }

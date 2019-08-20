@@ -32,7 +32,7 @@ import com.sapo.repository.UserRepository;
 import com.sapo.service.JwtUserDetailsService;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 	@Autowired
 	public JavaMailSender mail;

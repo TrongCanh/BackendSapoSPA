@@ -143,6 +143,7 @@ public class ShopeeApi {
 		if(gson.fromJson(callShopeeAPI(Util.UpdatePrice, jsonInputString), ItemV2.class).getItem()==null){
 			return null;
 		}
+		Thread.sleep(500);
 		Item item = getItemDetailsV2(ITEM_ID, SHOP_ID);
 		Set<Category> categories = item.getCategories();
 		Set<Category> all = categoryRepository.findByItem(item);

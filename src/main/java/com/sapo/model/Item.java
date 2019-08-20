@@ -1,6 +1,8 @@
 package com.sapo.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -60,7 +62,7 @@ public class Item {
 	private Set<Category> categories = new HashSet<Category>();
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
-	private Set<ItemPrice> itemPrices = new HashSet<ItemPrice>();
+	private List<ItemPrice> itemPrices = new ArrayList<ItemPrice>();
 	@Transient
 	@Column(nullable = true)
 	private ItemPrice itemPrice;
@@ -225,11 +227,12 @@ public class Item {
 		this.sold = sold;
 	}
 
-	public Set<ItemPrice> getItemPrices() {
+
+	public List<ItemPrice> getItemPrices() {
 		return itemPrices;
 	}
 
-	public void setItemPrices(Set<ItemPrice> itemPrices) {
+	public void setItemPrices(List<ItemPrice> itemPrices) {
 		this.itemPrices = itemPrices;
 	}
 

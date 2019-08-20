@@ -20,7 +20,7 @@ import com.sapo.repository.ShopRepository;
 import com.sapo.repository.UserRepository;
 import com.sapo.shopee.ShopeeApi;
 import com.sapo.util.Util;
-@CrossOrigin()
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class ShopController {
 	@Autowired
