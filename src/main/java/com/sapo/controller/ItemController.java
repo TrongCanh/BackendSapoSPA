@@ -20,8 +20,7 @@ import com.sapo.model.Item;
 import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemRepository;
 import com.sapo.shopee.ShopeeApi;
-@CrossOrigin()
-
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 public class ItemController {
 	@Autowired
