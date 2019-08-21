@@ -50,10 +50,6 @@ public class Item {
 	@Column(nullable = true)
 	private double price_min;
 	@Column(nullable = true)
-	private double max;
-	@Column(nullable = true)
-	private double min;
-	@Column(nullable = true)
 	private String discount;
 	@Column(nullable = true)
 	private int stock;
@@ -81,22 +77,6 @@ public class Item {
 
 	public ItemPrice getItemPrice() {
 		return itemPrice;
-	}
-
-	public double getMax() {
-		return max;
-	}
-
-	public void setMax(double max) {
-		this.max = max;
-	}
-
-	public double getMin() {
-		return min;
-	}
-
-	public void setMin(double min) {
-		this.min = min;
 	}
 
 	public void setItemPrice(ItemPrice itemPrice) {

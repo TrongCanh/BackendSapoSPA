@@ -143,27 +143,27 @@ public class ItemController {
 	public Rival postRival(@RequestBody Rival rival) throws Exception {
 		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
 			Rival newRival = new Rival(rival.getItemid(), rival.getShopid(), rival.getRivalShopid(),
-					rival.getRivalItemid());
+					rival.getRivalItemid(), rival.isAuto(), rival.getPrice());
+			if (rival.getMax() != 0) {
+				newRival.setMax(rival.getMax());
+			}
+			if (rival.getMin() != 0) {
+				newRival.setMin(rival.getMin());
+			}
 			rivalRepository.save(newRival);
+			return newRival;
 		}
-		Item item = shopeeApi.getItemDetailsV2(rival.getRivalItemid(), rival.getRivalShopid());
-		Set<Category> categories = item.getCategories();
-		Set<Category> all = categoryRepository.findByItem(item);
-		if (all != null) {
-
-			for (Category category : all) {
-				categoryRepository.delete(category);
-			}
-			for (Category category : categories) {
-				category.setItem(item);
-			}
+		Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
+		newRival.setAuto(rival.isAuto());
+		newRival.setPrice(rival.getPrice());
+		if (rival.getMax() != 0) {
+			newRival.setMax(rival.getMax());
 		}
-//		Set<ItemPrice> priceList = itemPriceRepository.findByItem(item);
-//		priceList.add(item.getItemPrice());
-//		item.setItemPrices(priceList);
-		itemRepository.save(item);
-
-		return rival;
+		if (rival.getMin() != 0) {
+			newRival.setMin(rival.getMin());
+		}
+		rivalRepository.save(newRival);
+		return newRival;
 	}
 
 	@DeleteMapping("/rival")
@@ -188,45 +188,40 @@ public class ItemController {
 		return null;
 	}
 
-	@PutMapping("/rival")
-	public Rival putRival(@RequestBody Rival rival) {
-		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
-			Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
-			newRival.setAuto(rival.isAuto());
-			if (rival.isAuto() == true) {
-				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
-				for (Rival rival2 : rivalAuto) {
-					rival2.setAuto(false);
-					rivalRepository.save(rival2);
-				}
-			}
-			newRival.setPrice(rival.getPrice());
-			rivalRepository.save(rival);
-		}
-		return rival;
-	}
-
-	@GetMapping("/rival/{rival}")
-	public List<ItemPrice> getPriceRival(@PathVariable("rival") Long itemid) {
+	@GetMapping("/itemPrice/{itemid}")
+	public List<ItemPrice> getPriceRival(@PathVariable("itemid") Long itemid) {
 		Item item = itemRepository.findByItemid(itemid);
 		return item.getItemPrices();
 	}
 
-	@GetMapping("/rival/{shopid}/{itemid}")
+	@GetMapping("/rivals/{shopid}/{itemid}")
 	public List<Item> getRivals(@PathVariable("itemid") Long itemid) {
 		List<Rival> rivals = rivalRepository.findByItemid(itemid);
-		List<Item> items = new ArrayList<Item>();
+		List<Item> list = new ArrayList<Item>();
 		for (Rival rival : rivals) {
-			Item item = itemRepository.findByItemid(rival.getRivalItemid());
-			items.add(item);
+			list.add(itemRepository.findByItemid(rival.getRivalItemid()));
 		}
-		return items;
+		return list;
+	}
+
+	@GetMapping("rival/{itemid}/{rivalItemid}")
+	public Rival getRival(@PathVariable("itemid") Long itemid, @PathVariable("rivalItemid") Long rivalItemid) {
+		Rival rival = rivalRepository.findByItemidAndRivalItemid(itemid, rivalItemid);
+		return rival;
+
 	}
 
 	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
 	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws Exception {
 		Item item = shopeeApi.updatePrice(itemid, shopid, price);
+		if (item != null) {
+			List<Rival> rivals = rivalRepository.findByItemidAndAuto(itemid, true);
+			for (Rival rival : rivals) {
+				rival.setAuto(false);
+				rivalRepository.save(rival);
+			}
+		}
 		return item;
 	}
 

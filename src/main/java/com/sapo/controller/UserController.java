@@ -124,7 +124,7 @@ public class UserController {
 			SimpleMailMessage mess = new SimpleMailMessage();
 			mess.setTo(user.getEmail());
 			mess.setSubject("ResetPass");
-			mess.setText("Mật khẩu mới của bạn là: " + String.valueOf(newPass));
+			mess.setText("Tài khoản: "+user.getUsername()+". Mật khẩu mới của bạn là: " + String.valueOf(newPass));
 			this.mail.send(mess);
 			user.setPassword(bcryptEncoder.encode((String.valueOf(newPass))));
 			userRepository.save(user);

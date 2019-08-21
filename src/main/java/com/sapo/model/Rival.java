@@ -19,8 +19,22 @@ public class Rival {
 	private long rivalItemid;		//item
 	private boolean auto;
 	private double price;
+	private double max;
+	private double min;
 	public long getId() {
 		return id;
+	}
+	public double getMax() {
+		return max;
+	}
+	public void setMax(double max) {
+		this.max = max;
+	}
+	public double getMin() {
+		return min;
+	}
+	public void setMin(double min) {
+		this.min = min;
 	}
 	public void setId(long id) {
 		this.id = id;
@@ -66,13 +80,16 @@ public class Rival {
 	public void setRivalItemid(long rivalItemid) {
 		this.rivalItemid = rivalItemid;
 	}
-	public Rival(long itemid, long shopid, long rivalShopid, long rivalItemid) {
+	public Rival(long itemid, long shopid, long rivalShopid, long rivalItemid, boolean auto, double price) {
 		super();
 		this.itemid = itemid;
 		this.shopid = shopid;
 		this.rivalShopid = rivalShopid;
 		this.rivalItemid = rivalItemid;
+		this.auto = auto;
+		this.price = price;
 	}
+
 	
 	
 }
