@@ -19,6 +19,7 @@ import com.sapo.dto.KeyItem;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
 import com.sapo.model.ItemPrice;
+import com.sapo.model.ItemRival;
 import com.sapo.model.Rival;
 import com.sapo.model.Shop;
 import com.sapo.repository.CategoryRepository;
@@ -195,19 +196,27 @@ public class ItemController {
 	}
 
 	@GetMapping("/rivals/{shopid}/{itemid}")
-	public List<Item> getRivals(@PathVariable("itemid") Long itemid) {
+	public List<ItemRival> getRivals(@PathVariable("itemid") Long itemid) {
 		List<Rival> rivals = rivalRepository.findByItemid(itemid);
-		List<Item> list = new ArrayList<Item>();
+		List<ItemRival> list = new ArrayList<ItemRival>();
 		for (Rival rival : rivals) {
-			list.add(itemRepository.findByItemid(rival.getRivalItemid()));
+			ItemRival itemRival = new ItemRival();
+			itemRival.setItemRival(itemRepository.findByItemid(rival.getRivalItemid()));
+			itemRival.setRival(rival);
+			itemRival.setItem(itemRepository.findByItemid(itemid));
+			list.add(itemRival);
 		}
 		return list;
 	}
 
 	@GetMapping("rival/{itemid}/{rivalItemid}")
-	public Rival getRival(@PathVariable("itemid") Long itemid, @PathVariable("rivalItemid") Long rivalItemid) {
+	public ItemRival getRival(@PathVariable("itemid") Long itemid, @PathVariable("rivalItemid") Long rivalItemid) {
 		Rival rival = rivalRepository.findByItemidAndRivalItemid(itemid, rivalItemid);
-		return rival;
+		ItemRival itemRival = new ItemRival();
+		itemRival.setItemRival(itemRepository.findByItemid(rivalItemid));
+		itemRival.setRival(rival);
+		itemRival.setItem(itemRepository.findByItemid(itemid));
+		return itemRival;
 
 	}
 
