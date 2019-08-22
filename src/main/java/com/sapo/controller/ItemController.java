@@ -155,11 +155,19 @@ public class ItemController {
 			if (rival.getMin() != 0) {
 				newRival.setMin(rival.getMin());
 			}
+			if (rival.isAuto() == true) {
+				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
+				for (Rival rival2 : rivalAuto) {
+					rival2.setAuto(false);
+					rivalRepository.save(rival2);
+				}
+			}
+			newRival.setAuto(rival.isAuto());
+
 			rivalRepository.save(newRival);
 			return newRival;
 		}
 		Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
-		newRival.setAuto(rival.isAuto());
 		if (rival.isAuto() == true) {
 			List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
 			for (Rival rival2 : rivalAuto) {
@@ -167,6 +175,7 @@ public class ItemController {
 				rivalRepository.save(rival2);
 			}
 		}
+		newRival.setAuto(rival.isAuto());
 		newRival.setPrice(rival.getPrice());
 		if (rival.getMax() != 0) {
 			newRival.setMax(rival.getMax());
