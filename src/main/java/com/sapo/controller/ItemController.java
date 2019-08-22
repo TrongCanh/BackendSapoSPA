@@ -160,6 +160,13 @@ public class ItemController {
 		}
 		Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
 		newRival.setAuto(rival.isAuto());
+		if (rival.isAuto() == true) {
+			List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
+			for (Rival rival2 : rivalAuto) {
+				rival2.setAuto(false);
+				rivalRepository.save(rival2);
+			}
+		}
 		newRival.setPrice(rival.getPrice());
 		if (rival.getMax() != 0) {
 			newRival.setMax(rival.getMax());
