@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sapo.dto.KeyItem;
+import com.sapo.dto.ListRange;
+import com.sapo.dto.Range;
 import com.sapo.model.AutoPrice;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
@@ -138,6 +140,33 @@ public class ItemController {
 		return items;
 	}
 
+	@GetMapping("/statistical/{shopid}/{itemid}")
+	public ListRange statistical(@PathVariable("itemid") Long itemid, @PathVariable("shopid") Long shopid) throws Exception {
+		ListRange ranges = new ListRange();
+		Item myItem =shopeeApi.getItemDetailsV2(itemid,shopid);
+		int[] rank = new int[10];
+		int count = 0;
+		double medium = 0;
+		for (int i : rank) {
+			rank[i]=0;
+		}
+		List<KeyItem> keys = shopeeApi.getRivals(itemid, shopid);
+		for (KeyItem key : keys) {
+			Item item = shopeeApi.getItemDetailsV2(key.getItemid(), key.getShopid());
+			int r = (int) (item.getPrice()/myItem.getPrice()*10)-5;
+			rank[r]++;
+			count++;
+			medium+=item.getPrice();
+		}
+		List<Range> list = new ArrayList<Range>();
+		for (int i = 0; i < 10; i++) {
+			list.add(new Range(i+5, rank[i]));
+		}
+		ranges.setRanks(list);
+		ranges.setMedium(medium/count);
+		return ranges;
+	}
+
 	@PostMapping("/item")
 	public Item postItem(@RequestBody Item item) throws Exception {
 		itemRepository.save(item);
@@ -204,7 +233,7 @@ public class ItemController {
 
 	@DeleteMapping("/rival/{itemid}")
 	public String deleteRivals(@PathVariable("itemid") Long itemid) throws Exception {
-		List<Rival> rivals =rivalRepository.findByItemid(itemid);
+		List<Rival> rivals = rivalRepository.findByItemid(itemid);
 		for (Rival rival : rivals) {
 			Item item = null;
 			if (rival != null) {
@@ -256,20 +285,22 @@ public class ItemController {
 		return itemRival;
 
 	}
+
 	@GetMapping("/autoUpdate/{itemid}")
-	public List<AutoPrice> auto(@PathVariable("itemid") Long itemid){
+	public List<AutoPrice> auto(@PathVariable("itemid") Long itemid) {
 		List<AutoPrice> autoPrice = autoPriceRepository.findByItemid(itemid);
 		return autoPrice;
 	}
+
 	@GetMapping("/chosenItems/{shop}")
-	public List<Item> chosenItems(@PathVariable("shop") Long shopid) throws Exception{
+	public List<Item> chosenItems(@PathVariable("shop") Long shopid) throws Exception {
 		List<Item> list = itemRepository.findByShopid(shopid);
 		List<Item> items = new ArrayList<Item>();
 		for (Item item : list) {
 			int chosen = rivalRepository.findByShopidAndItemid(shopid, item.getItemid()).size();
-			if(chosen!=0) {
+			if (chosen != 0) {
 				int bool = rivalRepository.findByItemidAndAuto(item.getItemid(), true).size();
-				if(bool!=0) {
+				if (bool != 0) {
 					item.setAuto(true);
 				}
 				item.setChosen(chosen);
@@ -278,6 +309,7 @@ public class ItemController {
 		}
 		return items;
 	}
+
 	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
 	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws Exception {
