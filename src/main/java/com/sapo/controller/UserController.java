@@ -92,7 +92,7 @@ public class UserController {
 
 		String username = jwtTokenUtil.getUsernameFromToken(token);
 		User mUser = userRepository.findByUsername(username);
-		if (bcryptEncoder.encode(user.getPasswordConfirm())==mUser.getPassword()) {
+		if (bcryptEncoder.matches(user.getPasswordConfirm(), mUser.getPassword())) {
 			if (user.getPhone() != null) {
 				mUser.setPhone(user.getPhone());
 			}
@@ -105,7 +105,7 @@ public class UserController {
 			userRepository.save(mUser);
 			return "update thành công";
 		}
-		return "không đúng mật khẩu cũ";
+		return "update không thành công";
 	}
 
 	@GetMapping("/infor")
