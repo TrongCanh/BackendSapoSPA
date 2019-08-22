@@ -39,8 +39,9 @@ public class MyJob {
 	ItemPriceRepository itemPriceRepository;
 	@Autowired
 	AutoPriceRepository autoPriceRepository;
-	@Scheduled(cron = "59 59 1 */1 * ?")
-//	@Scheduled(cron = "0 */15 * * * ?")
+
+//	@Scheduled(cron = "59 59 1 */1 * ?")
+	@Scheduled(cron = "0 */15 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {
@@ -61,15 +62,16 @@ public class MyJob {
 				priceList.add(item.getItemPrice());
 				item.setItemPrices(priceList);
 				Item myItem = itemRepository.findByItemid(rival.getItemid());
-				if(rival.isAuto()) {
-					if (myItem.getPrice()+rival.getPrice()!=item.getPrice()
-							&& myItem.getPrice()+rival.getPrice()<=rival.getMax() 
-							&& rival.getMin()<=myItem.getPrice()+rival.getPrice()
-							) {
-						if(shopeeApi.updatePrice(myItem.getItemid(), myItem.getShopid(), item.getPrice()-rival.getPrice())!=null) {
+				if (rival.isAuto()) {
+					if (myItem.getPrice() + rival.getPrice() != item.getPrice()
+							&& item.getPrice() - rival.getPrice() <= rival.getMax()
+							&& rival.getMin() <= item.getPrice() - rival.getPrice()) {
+						if (shopeeApi.updatePrice(myItem.getItemid(), myItem.getShopid(),
+								item.getPrice() - rival.getPrice()) != null) {
 							Calendar cal = Calendar.getInstance();
 							cal.add(Calendar.HOUR, 7);
-							AutoPrice auto = new AutoPrice(cal.getTime(), item.getPrice()-rival.getPrice(), rival.getItemid(), rival.getRivalItemid());
+							AutoPrice auto = new AutoPrice(cal.getTime(), item.getPrice() - rival.getPrice(),myItem.getPrice(),
+									rival.getItemid(), rival.getRivalItemid());
 							autoPriceRepository.save(auto);
 						}
 					}

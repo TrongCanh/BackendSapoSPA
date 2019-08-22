@@ -6,7 +6,14 @@ public class UserRegisterDTO {
 	private String email;
 	private String username;
 	private String password;
+	private String passwordConfirm;
 	
+	public String getPasswordConfirm() {
+		return passwordConfirm;
+	}
+	public void setPasswordConfirm(String passwordConfirm) {
+		this.passwordConfirm = passwordConfirm;
+	}
 	public String getPhone() {
 		return phone;
 	}

@@ -115,7 +115,7 @@ public class ShopeeApi {
 		List<KeyItem> list = gson.fromJson(callApi(url), ItemsV2.class).getItems();
 		List<KeyItem> items = new ArrayList<KeyItem>();
 		for (KeyItem keyItem : list) {
-			if (keyItem.getAds_keyword()==null) {
+			if (keyItem.getAds_keyword()==null&&keyItem.getItemid()!=itemid) {
 				items.add(keyItem);
 			}
 		}

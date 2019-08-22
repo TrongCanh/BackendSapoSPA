@@ -41,7 +41,7 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
-
+	
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -85,24 +85,27 @@ public class UserController {
 	}
 
 	@PutMapping("/updateInfor")
-	public User updateInfor(@RequestBody UserRegisterDTO user, @RequestHeader("Authorization") String token) {
+	public String updateInfor(@RequestBody UserRegisterDTO user, @RequestHeader("Authorization") String token) {
 		if (token.startsWith("Bearer ")) {
 			token = token.substring(7);
 		}
+
 		String username = jwtTokenUtil.getUsernameFromToken(token);
 		User mUser = userRepository.findByUsername(username);
-		if (user.getPhone() != null) {
-			mUser.setPhone(user.getPhone());
+		if (bcryptEncoder.encode(user.getPasswordConfirm())==mUser.getPassword()) {
+			if (user.getPhone() != null) {
+				mUser.setPhone(user.getPhone());
+			}
+			if (user.getPassword() != null) {
+				mUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+			}
+			if (user.getName() != null) {
+				mUser.setName(user.getName());
+			}
+			userRepository.save(mUser);
+			return "update thành công";
 		}
-		if (user.getPassword() != null) {
-			mUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		}
-		if (user.getName() != null) {
-			mUser.setName(user.getName());
-		}
-		userRepository.save(mUser);
-
-		return mUser;
+		return "không đúng mật khẩu cũ";
 	}
 
 	@GetMapping("/infor")
@@ -124,7 +127,8 @@ public class UserController {
 			SimpleMailMessage mess = new SimpleMailMessage();
 			mess.setTo(user.getEmail());
 			mess.setSubject("ResetPass");
-			mess.setText("Tài khoản: "+user.getUsername()+". Mật khẩu mới của bạn là: " + String.valueOf(newPass));
+			mess.setText(
+					"Tài khoản: " + user.getUsername() + ". Mật khẩu mới của bạn là: " + String.valueOf(newPass));
 			this.mail.send(mess);
 			user.setPassword(bcryptEncoder.encode((String.valueOf(newPass))));
 			userRepository.save(user);
