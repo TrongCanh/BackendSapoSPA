@@ -1,5 +1,6 @@
 package com.sapo;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -8,11 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.sapo.model.AutoPrice;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
 import com.sapo.model.ItemPrice;
 import com.sapo.model.Rival;
 import com.sapo.model.Shop;
+import com.sapo.repository.AutoPriceRepository;
 import com.sapo.repository.CategoryRepository;
 import com.sapo.repository.ItemPriceRepository;
 import com.sapo.repository.ItemRepository;
@@ -34,8 +37,10 @@ public class MyJob {
 	ShopRepository shopRepository;
 	@Autowired
 	ItemPriceRepository itemPriceRepository;
-
-	@Scheduled(cron = "0 */1 * * * ?")
+	@Autowired
+	AutoPriceRepository autoPriceRepository;
+	@Scheduled(cron = "59 59 1 */1 * ?")
+//	@Scheduled(cron = "0 */15 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {
@@ -53,14 +58,22 @@ public class MyJob {
 					}
 				}
 				List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
-				if (priceList.size() > 0) {
-					if (priceList.get(priceList.size() - 1).getPrice() != item.getItemPrice().getPrice()
-							&& rival.isAuto()) {
-
-					}
-				}
 				priceList.add(item.getItemPrice());
 				item.setItemPrices(priceList);
+				Item myItem = itemRepository.findByItemid(rival.getItemid());
+				if(rival.isAuto()) {
+					if (myItem.getPrice()+rival.getPrice()!=item.getPrice()
+							&& myItem.getPrice()+rival.getPrice()<=rival.getMax() 
+							&& rival.getMin()<=myItem.getPrice()+rival.getPrice()
+							) {
+						if(shopeeApi.updatePrice(myItem.getItemid(), myItem.getShopid(), item.getPrice()-rival.getPrice())!=null) {
+							Calendar cal = Calendar.getInstance();
+							cal.add(Calendar.HOUR, 7);
+							AutoPrice auto = new AutoPrice(cal.getTime(), item.getPrice()-rival.getPrice(), rival.getItemid(), rival.getRivalItemid());
+							autoPriceRepository.save(auto);
+						}
+					}
+				}
 				itemRepository.save(item);
 			}
 

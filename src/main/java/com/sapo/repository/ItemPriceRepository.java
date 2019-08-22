@@ -11,4 +11,5 @@ import com.sapo.model.ItemPrice;
 @Repository
 public interface ItemPriceRepository extends JpaRepository<ItemPrice, Long> {
 	List<ItemPrice> findByItem(Item item);
+	void deleteByItem(Item item);
 }

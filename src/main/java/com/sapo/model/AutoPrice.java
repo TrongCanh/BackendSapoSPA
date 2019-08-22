@@ -3,26 +3,18 @@ package com.sapo.model;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class ItemPrice {
+public class AutoPrice {
 	@Id
 	@GeneratedValue
 	private Long id;
 	private Date date;
 	private double price;
-	private boolean auto;
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="item_id",nullable = false)
-	@JsonIgnore
-	private Item item;
+	private Long itemid;
+	private Long rivalid;
 	public Long getId() {
 		return id;
 	}
@@ -41,17 +33,24 @@ public class ItemPrice {
 	public void setPrice(double price) {
 		this.price = price;
 	}
-	public Item getItem() {
-		return item;
+	public Long getItemid() {
+		return itemid;
 	}
-	public void setItem(Item item) {
-		this.item = item;
+	public void setItemid(Long itemid) {
+		this.itemid = itemid;
 	}
-	public boolean isAuto() {
-		return auto;
+	public Long getRivalid() {
+		return rivalid;
 	}
-	public void setAuto(boolean auto) {
-		this.auto = auto;
+	public void setRivalid(Long rivalid) {
+		this.rivalid = rivalid;
 	}
-
+	public AutoPrice(Date date, double price, Long itemid, Long rivalid) {
+		super();
+		this.date = date;
+		this.price = price;
+		this.itemid = itemid;
+		this.rivalid = rivalid;
+	}
+	
 }
