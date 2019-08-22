@@ -41,7 +41,7 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
-
+	
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
@@ -57,7 +57,7 @@ public class UserController {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
 		final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-		if(userDetails==null)
+		if (userDetails == null)
 			return ResponseEntity.badRequest().body("Tài khoản không tồn tại");
 		final String token = jwtTokenUtil.generateToken(userDetails);
 
@@ -65,14 +65,14 @@ public class UserController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public ResponseEntity<?> saveUser(@RequestBody UserRegisterDTO user) throws Exception {	
-		
-		if(userRepository.findByEmail(user.getEmail())!=null)
+	public ResponseEntity<?> saveUser(@RequestBody UserRegisterDTO user) throws Exception {
+
+		if (userRepository.findByEmail(user.getEmail()) != null)
 			return (ResponseEntity<?>) ResponseEntity.badRequest().body("Email đã tồn tại");
-		
-		if(userRepository.findByUsername(user.getUsername())!=null)
+
+		if (userRepository.findByUsername(user.getUsername()) != null)
 			return (ResponseEntity<?>) ResponseEntity.badRequest().body("Username đã tồn tại");
-		
+
 		userDetailsService.save(user);
 		authenticate(user.getUsername(), user.getPassword());
 
@@ -85,24 +85,31 @@ public class UserController {
 	}
 
 	@PutMapping("/updateInfor")
-	public User updateInfor(@RequestBody UserRegisterDTO user, @RequestHeader("Authorization") String token) {
+	public String updateInfor(@RequestBody UserRegisterDTO user, @RequestHeader("Authorization") String token) {
 		if (token.startsWith("Bearer ")) {
 			token = token.substring(7);
 		}
+
 		String username = jwtTokenUtil.getUsernameFromToken(token);
 		User mUser = userRepository.findByUsername(username);
-		if (user.getPhone()!=null) {
-			mUser.setPhone(user.getPhone());
+		if (bcryptEncoder.matches(user.getPasswordConfirm(), mUser.getPassword())) {
+			if (user.getPhone() != null) {
+				mUser.setPhone(user.getPhone());
+			}
+			if (user.getPassword() != null) {
+				mUser.setPassword(bcryptEncoder.encode(user.getPassword()));
+			}
+			if (user.getName() != null) {
+				mUser.setName(user.getName());
+			}
+			userRepository.save(mUser);
+			return "update thành công";
 		}
-		if (user.getPassword()!=null) {
-			mUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-		}
-		userRepository.save(mUser);
-
-		return mUser;
+		return "update không thành công";
 	}
+
 	@GetMapping("/infor")
-	public User userInfor( @RequestHeader("Authorization") String token) {
+	public User userInfor(@RequestHeader("Authorization") String token) {
 		if (token.startsWith("Bearer ")) {
 			token = token.substring(7);
 		}
@@ -110,6 +117,7 @@ public class UserController {
 		User user = userRepository.findByUsername(username);
 		return user;
 	}
+
 	@PutMapping("/forget")
 	public String forgotPass(@RequestBody ForgotPassDTO userDTO) {
 		User user = userRepository.findByEmail(userDTO.getEmail());
@@ -119,7 +127,8 @@ public class UserController {
 			SimpleMailMessage mess = new SimpleMailMessage();
 			mess.setTo(user.getEmail());
 			mess.setSubject("ResetPass");
-			mess.setText("Mật khẩu mới của bạn là: " + String.valueOf(newPass));
+			mess.setText(
+					"Tài khoản: " + user.getUsername() + ". Mật khẩu mới của bạn là: " + String.valueOf(newPass));
 			this.mail.send(mess);
 			user.setPassword(bcryptEncoder.encode((String.valueOf(newPass))));
 			userRepository.save(user);

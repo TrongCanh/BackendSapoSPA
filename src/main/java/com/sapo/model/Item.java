@@ -56,12 +56,47 @@ public class Item {
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private Set<Category> categories = new HashSet<Category>();
+	@JsonIgnore
 	@Column(nullable = true)
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "item")
 	private List<ItemPrice> itemPrices = new ArrayList<ItemPrice>();
 	@Transient
 	@Column(nullable = true)
 	private ItemPrice itemPrice;
+	@JsonIgnore
+	@Transient
+	@Column(nullable = true)
+	private String ads_keyword;
+	@Transient
+	@Column(nullable = true)
+	private int chosen;
+	@Transient
+	@Column(nullable = true)
+	private boolean auto;
+
+	public boolean isAuto() {
+		return auto;
+	}
+
+	public void setAuto(boolean auto) {
+		this.auto = auto;
+	}
+
+	public int getChosen() {
+		return chosen;
+	}
+
+	public void setChosen(int chosen) {
+		this.chosen = chosen;
+	}
+
+	public String getAds_keyword() {
+		return ads_keyword;
+	}
+
+	public void setAds_keyword(String ads_keyword) {
+		this.ads_keyword = ads_keyword;
+	}
 
 	public ItemPrice getItemPrice() {
 		return itemPrice;
@@ -206,7 +241,6 @@ public class Item {
 	public void setSold(int sold) {
 		this.sold = sold;
 	}
-
 
 	public List<ItemPrice> getItemPrices() {
 		return itemPrices;
