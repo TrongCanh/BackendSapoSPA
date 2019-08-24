@@ -60,8 +60,10 @@ public class ItemPrice {
 		this.auto = auto;
 	}
 	public String getTime() {
-		return this.date.get(Calendar.DATE)+"/"+this.date.get(Calendar.MONTH)+"/"+
-				this.date.get(Calendar.YEAR)+"_"+this.date.get(Calendar.HOUR);
+		Calendar date = this.date;
+		date.add(Calendar.HOUR, -7);
+		return (date.get(Calendar.DAY_OF_MONTH))+"/"+(date.get(Calendar.MONTH)+1)+"/"+
+				date.get(Calendar.YEAR)+"_"+date.get(Calendar.HOUR_OF_DAY);
 	}
 	
 }

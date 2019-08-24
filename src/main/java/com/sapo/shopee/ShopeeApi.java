@@ -95,7 +95,7 @@ public class ShopeeApi {
 				image[i] = "https://cf.shopee.vn/file/" + image[i];
 			}
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.HOUR, 7);
+//			cal.add(Calendar.HOUR, 7);
 			item.setPrice(item.getPrice() / 100000);
 			item.setPrice_max(item.getPrice_max() / 100000);
 			item.setPrice_min(item.getPrice_min() / 100000);
