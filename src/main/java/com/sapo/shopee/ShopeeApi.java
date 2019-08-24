@@ -100,7 +100,7 @@ public class ShopeeApi {
 			item.setPrice_max(item.getPrice_max() / 100000);
 			item.setPrice_min(item.getPrice_min() / 100000);
 			ItemPrice itemPrice = new ItemPrice();
-			itemPrice.setDate(cal.getTime());
+			itemPrice.setDate(cal);
 			itemPrice.setItem(item);
 			itemPrice.setPrice(item.getPrice());
 			item.setItemPrice(itemPrice);
@@ -109,9 +109,10 @@ public class ShopeeApi {
 	}
 
 	public List<KeyItem> getRivals(long itemid, Long shopid) throws Exception, Exception {
-		String name = getItemDetailsV2(itemid, shopid).getName();
+		Item item = getItemDetailsV2(itemid, shopid);
+		String name = item.getName();
 		String url = "https://shopee.vn/api/v2/search_items/?by=relevancy&keyword=" + encodeValue(name)
-				+ "&newest=0&order=desc&limit=50&page_type=search";
+				+ "&newest=0&order=desc&limit=100&page_type=search&price_max="+item.getPrice()*1.5+"&price_min="+item.getPrice()*0.5;
 		List<KeyItem> list = gson.fromJson(callApi(url), ItemsV2.class).getItems();
 		List<KeyItem> items = new ArrayList<KeyItem>();
 		for (KeyItem keyItem : list) {

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sapo.dto.KeyItem;
+import com.sapo.dto.ListRange;
+import com.sapo.dto.Range;
 import com.sapo.model.AutoPrice;
 import com.sapo.model.Category;
 import com.sapo.model.Item;
@@ -138,12 +140,48 @@ public class ItemController {
 		return items;
 	}
 
+	@GetMapping("/statistical/{shopid}/{itemid}")
+	public ListRange statistical(@PathVariable("itemid") Long itemid, @PathVariable("shopid") Long shopid)
+			throws Exception {
+		ListRange ranges = new ListRange();
+		Item myItem = shopeeApi.getItemDetailsV2(itemid, shopid);
+		int[] rank = new int[10];
+		int count = 0;
+		double medium = 0;
+		for (int i : rank) {
+			rank[i] = 0;
+		}
+		List<KeyItem> keys = shopeeApi.getRivals(itemid, shopid);
+		for (KeyItem key : keys) {
+			Item item = shopeeApi.getItemDetailsV2(key.getItemid(), key.getShopid());
+			int r = (int) (item.getPrice() / myItem.getPrice() * 10) - 5;
+			rank[r]++;
+			count++;
+			medium += item.getPrice();
+		}
+		List<Range> list = new ArrayList<Range>();
+		for (int i = 0; i < 10; i++) {
+			list.add(new Range(i + 5, rank[i]));
+		}
+		ranges.setRanks(list);
+		ranges.setMedium(medium / count);
+		return ranges;
+	}
+
 	@PostMapping("/item")
 	public Item postItem(@RequestBody Item item) throws Exception {
 		itemRepository.save(item);
 		return item;
 	}
-
+	@PutMapping("/rivalOff/{itemid}")
+	public String putRival(@PathVariable("itemid") Long itemid) {
+		List<Rival> rivals = rivalRepository.findByItemid(itemid);
+		for (Rival rival : rivals) {
+			rival.setAuto(false);
+			rivalRepository.save(rival);
+		}
+		return "Off Auto";
+	}
 	@PostMapping("/rival")
 	public Rival postRival(@RequestBody Rival rival) throws Exception {
 		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
@@ -155,10 +193,26 @@ public class ItemController {
 			if (rival.getMin() != 0) {
 				newRival.setMin(rival.getMin());
 			}
+			if (rival.isAuto() == true) {
+				List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
+				for (Rival rival2 : rivalAuto) {
+					rival2.setAuto(false);
+					rivalRepository.save(rival2);
+				}
+			}
+			newRival.setAuto(rival.isAuto());
+
 			rivalRepository.save(newRival);
 			return newRival;
 		}
 		Rival newRival = rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid());
+		if (rival.isAuto() == true) {
+			List<Rival> rivalAuto = rivalRepository.findByItemidAndAuto(rival.getItemid(), true);
+			for (Rival rival2 : rivalAuto) {
+				rival2.setAuto(false);
+				rivalRepository.save(rival2);
+			}
+		}
 		newRival.setAuto(rival.isAuto());
 		newRival.setPrice(rival.getPrice());
 		if (rival.getMax() != 0) {
@@ -206,7 +260,6 @@ public class ItemController {
 		}
 		return null;
 	}
-
 	@DeleteMapping("/item/{item_id}")
 	public Item deleteItem(@PathVariable("item_id") Long item_id) {
 		Item item = itemRepository.findByItemid(item_id);
@@ -217,7 +270,8 @@ public class ItemController {
 	@GetMapping("/itemPrice/{itemid}")
 	public List<ItemPrice> getPriceRival(@PathVariable("itemid") Long itemid) {
 		Item item = itemRepository.findByItemid(itemid);
-		return item.getItemPrices();
+		List<ItemPrice> list = item.getItemPrices();
+		return list;
 	}
 
 	@GetMapping("/rivals/{shopid}/{itemid}")

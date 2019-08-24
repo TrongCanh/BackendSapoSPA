@@ -1,6 +1,6 @@
 package com.sapo.model;
 
-import java.util.Date;
+import java.util.Calendar;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,8 +17,12 @@ public class ItemPrice {
 	@Id
 	@GeneratedValue
 	private Long id;
-	private Date date;
+	@JsonIgnore
+	private Calendar date;
+	@Transient
+	private String time;
 	private double price;
+	@JsonIgnore
 	private boolean auto;
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="item_id",nullable = false)
@@ -29,10 +34,11 @@ public class ItemPrice {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Date getDate() {
+	
+	public Calendar getDate() {
 		return date;
 	}
-	public void setDate(Date date) {
+	public void setDate(Calendar date) {
 		this.date = date;
 	}
 	public double getPrice() {
@@ -53,5 +59,9 @@ public class ItemPrice {
 	public void setAuto(boolean auto) {
 		this.auto = auto;
 	}
-
+	public String getTime() {
+		return this.date.get(Calendar.DATE)+"/"+this.date.get(Calendar.MONTH)+"/"+
+				this.date.get(Calendar.YEAR)+"_"+this.date.get(Calendar.HOUR);
+	}
+	
 }
