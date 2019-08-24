@@ -177,9 +177,11 @@ public class ItemController {
 		Item item = null;
 		if (rivalDetails != null) {
 			item = itemRepository.findByItemid(rivalDetails.getRivalItemid());
-			Shop shop = shopRepository.findByShopid(item.getShopid());
-			if (shop == null) {
-				itemRepository.delete(item);
+			if (item != null) {
+				Shop shop = shopRepository.findByShopid(item.getShopid());
+				if (shop == null) {
+					itemRepository.delete(item);
+				}
 			}
 			rivalRepository.delete(rivalDetails);
 		}
@@ -188,14 +190,16 @@ public class ItemController {
 
 	@DeleteMapping("/rival/{itemid}")
 	public String deleteRivals(@PathVariable("itemid") Long itemid) throws Exception {
-		List<Rival> rivals =rivalRepository.findByItemid(itemid);
+		List<Rival> rivals = rivalRepository.findByItemid(itemid);
 		for (Rival rival : rivals) {
 			Item item = null;
 			if (rival != null) {
 				item = itemRepository.findByItemid(rival.getRivalItemid());
-				Shop shop = shopRepository.findByShopid(item.getShopid());
-				if (shop == null) {
-					itemRepository.delete(item);
+				if (item != null) {
+					Shop shop = shopRepository.findByShopid(item.getShopid());
+					if (shop == null) {
+						itemRepository.delete(item);
+					}
 				}
 				rivalRepository.delete(rival);
 			}
@@ -240,20 +244,22 @@ public class ItemController {
 		return itemRival;
 
 	}
+
 	@GetMapping("/autoUpdate/{itemid}")
-	public List<AutoPrice> auto(@PathVariable("itemid") Long itemid){
+	public List<AutoPrice> auto(@PathVariable("itemid") Long itemid) {
 		List<AutoPrice> autoPrice = autoPriceRepository.findByItemid(itemid);
 		return autoPrice;
 	}
+
 	@GetMapping("/chosenItems/{shop}")
-	public List<Item> chosenItems(@PathVariable("shop") Long shopid) throws Exception{
+	public List<Item> chosenItems(@PathVariable("shop") Long shopid) throws Exception {
 		List<Item> list = itemRepository.findByShopid(shopid);
 		List<Item> items = new ArrayList<Item>();
 		for (Item item : list) {
 			int chosen = rivalRepository.findByShopidAndItemid(shopid, item.getItemid()).size();
-			if(chosen!=0) {
+			if (chosen != 0) {
 				int bool = rivalRepository.findByItemidAndAuto(item.getItemid(), true).size();
-				if(bool!=0) {
+				if (bool != 0) {
 					item.setAuto(true);
 				}
 				item.setChosen(chosen);
@@ -262,6 +268,7 @@ public class ItemController {
 		}
 		return items;
 	}
+
 	@PutMapping("/updatePrice/{shop_id}/{item_id}/{price}")
 	public Item updatePrice(@PathVariable("shop_id") Long shopid, @PathVariable("item_id") Long itemid,
 			@PathVariable("price") float price) throws Exception {
