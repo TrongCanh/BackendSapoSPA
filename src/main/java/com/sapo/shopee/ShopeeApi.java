@@ -100,7 +100,7 @@ public class ShopeeApi {
 			item.setPrice_max(item.getPrice_max() / 100000);
 			item.setPrice_min(item.getPrice_min() / 100000);
 			ItemPrice itemPrice = new ItemPrice();
-			itemPrice.setDate(cal.getTime());
+			itemPrice.setDate(cal);
 			itemPrice.setItem(item);
 			itemPrice.setPrice(item.getPrice());
 			item.setItemPrice(itemPrice);

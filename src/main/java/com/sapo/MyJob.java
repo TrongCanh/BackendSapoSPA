@@ -41,7 +41,7 @@ public class MyJob {
 	AutoPriceRepository autoPriceRepository;
 
 	@Scheduled(cron = "59 59 1 */1 * ?")
-//	@Scheduled(cron = "0 */15 * * * ?")
+//	@Scheduled(cron = "0 */2 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {

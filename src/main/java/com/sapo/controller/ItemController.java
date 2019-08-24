@@ -141,29 +141,30 @@ public class ItemController {
 	}
 
 	@GetMapping("/statistical/{shopid}/{itemid}")
-	public ListRange statistical(@PathVariable("itemid") Long itemid, @PathVariable("shopid") Long shopid) throws Exception {
+	public ListRange statistical(@PathVariable("itemid") Long itemid, @PathVariable("shopid") Long shopid)
+			throws Exception {
 		ListRange ranges = new ListRange();
-		Item myItem =shopeeApi.getItemDetailsV2(itemid,shopid);
+		Item myItem = shopeeApi.getItemDetailsV2(itemid, shopid);
 		int[] rank = new int[10];
 		int count = 0;
 		double medium = 0;
 		for (int i : rank) {
-			rank[i]=0;
+			rank[i] = 0;
 		}
 		List<KeyItem> keys = shopeeApi.getRivals(itemid, shopid);
 		for (KeyItem key : keys) {
 			Item item = shopeeApi.getItemDetailsV2(key.getItemid(), key.getShopid());
-			int r = (int) (item.getPrice()/myItem.getPrice()*10)-5;
+			int r = (int) (item.getPrice() / myItem.getPrice() * 10) - 5;
 			rank[r]++;
 			count++;
-			medium+=item.getPrice();
+			medium += item.getPrice();
 		}
 		List<Range> list = new ArrayList<Range>();
 		for (int i = 0; i < 10; i++) {
-			list.add(new Range(i+5, rank[i]));
+			list.add(new Range(i + 5, rank[i]));
 		}
 		ranges.setRanks(list);
-		ranges.setMedium(medium/count);
+		ranges.setMedium(medium / count);
 		return ranges;
 	}
 
@@ -172,7 +173,15 @@ public class ItemController {
 		itemRepository.save(item);
 		return item;
 	}
-
+	@PutMapping("/rivalOff/{itemid}")
+	public String putRival(@PathVariable("itemid") Long itemid) {
+		List<Rival> rivals = rivalRepository.findByItemid(itemid);
+		for (Rival rival : rivals) {
+			rival.setAuto(false);
+			rivalRepository.save(rival);
+		}
+		return "Off Auto";
+	}
 	@PostMapping("/rival")
 	public Rival postRival(@RequestBody Rival rival) throws Exception {
 		if (rivalRepository.findByItemidAndRivalItemid(rival.getItemid(), rival.getRivalItemid()) == null) {
@@ -222,9 +231,11 @@ public class ItemController {
 		Item item = null;
 		if (rivalDetails != null) {
 			item = itemRepository.findByItemid(rivalDetails.getRivalItemid());
-			Shop shop = shopRepository.findByShopid(item.getShopid());
-			if (shop == null) {
-				itemRepository.delete(item);
+			if (item != null) {
+				Shop shop = shopRepository.findByShopid(item.getShopid());
+				if (shop == null) {
+					itemRepository.delete(item);
+				}
 			}
 			rivalRepository.delete(rivalDetails);
 		}
@@ -238,16 +249,17 @@ public class ItemController {
 			Item item = null;
 			if (rival != null) {
 				item = itemRepository.findByItemid(rival.getRivalItemid());
-				Shop shop = shopRepository.findByShopid(item.getShopid());
-				if (shop == null) {
-					itemRepository.delete(item);
+				if (item != null) {
+					Shop shop = shopRepository.findByShopid(item.getShopid());
+					if (shop == null) {
+						itemRepository.delete(item);
+					}
 				}
 				rivalRepository.delete(rival);
 			}
 		}
 		return null;
 	}
-
 	@DeleteMapping("/item/{item_id}")
 	public Item deleteItem(@PathVariable("item_id") Long item_id) {
 		Item item = itemRepository.findByItemid(item_id);
@@ -258,7 +270,8 @@ public class ItemController {
 	@GetMapping("/itemPrice/{itemid}")
 	public List<ItemPrice> getPriceRival(@PathVariable("itemid") Long itemid) {
 		Item item = itemRepository.findByItemid(itemid);
-		return item.getItemPrices();
+		List<ItemPrice> list = item.getItemPrices();
+		return list;
 	}
 
 	@GetMapping("/rivals/{shopid}/{itemid}")
