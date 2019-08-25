@@ -17,7 +17,6 @@ public class ItemPrice {
 	@Id
 	@GeneratedValue
 	private Long id;
-	@JsonIgnore
 	private Calendar date;
 	@Transient
 	private String time;
@@ -61,7 +60,7 @@ public class ItemPrice {
 	}
 	public String getTime() {
 		Calendar date = this.date;
-		date.add(Calendar.HOUR, -7);
+//		date.add(Calendar.HOUR, -7);
 		return (date.get(Calendar.DAY_OF_MONTH))+"/"+(date.get(Calendar.MONTH)+1)+"/"+
 				date.get(Calendar.YEAR)+"_"+date.get(Calendar.HOUR_OF_DAY);
 	}

@@ -40,17 +40,17 @@ public class MyJob {
 	@Autowired
 	AutoPriceRepository autoPriceRepository;
 
-	@Scheduled(cron = "59 59 1 */1 * ?")
-//	@Scheduled(cron = "0 */2 * * * ?")
+//	@Scheduled(cron = "0 1 */1 * * ?")
+	@Scheduled(cron = "0 */15 * * * ?")
 	public void scheduleFixedDelayTask() throws Exception {
 		List<Rival> rivals = rivalRepository.findAll();
 		for (Rival rival : rivals) {
 			Item item = shopeeApi.getItemDetailsV2(rival.getRivalItemid(), rival.getRivalShopid());
+			Shop shop = shopeeApi.shopInfor(rival.getRivalShopid());
 			if (item != null) {
 				Set<Category> categories = item.getCategories();
 				Set<Category> all = categoryRepository.findByItem(item);
 				if (all != null) {
-
 					for (Category category : all) {
 						categoryRepository.delete(category);
 					}
@@ -61,7 +61,7 @@ public class MyJob {
 				List<ItemPrice> priceList = itemPriceRepository.findByItem(item);
 				priceList.add(item.getItemPrice());
 				item.setItemPrices(priceList);
-				Item myItem = itemRepository.findByItemid(rival.getItemid());
+				Item myItem = shopeeApi.getItemDetailsV2(rival.getItemid(), rival.getShopid());
 				if (rival.isAuto()) {
 					if (myItem.getPrice() + rival.getPrice() != item.getPrice()
 							&& item.getPrice() - rival.getPrice() <= rival.getMax()
@@ -70,15 +70,15 @@ public class MyJob {
 								item.getPrice() - rival.getPrice()) != null) {
 							Calendar cal = Calendar.getInstance();
 							cal.add(Calendar.HOUR, 7);
-							AutoPrice auto = new AutoPrice(cal.getTime(), item.getPrice() - rival.getPrice(),myItem.getPrice(),
+							AutoPrice auto = new AutoPrice(cal, item.getPrice() - rival.getPrice(), myItem.getPrice(),
 									rival.getItemid(), rival.getRivalItemid());
+							auto.setShopRival(shop.getName());
 							autoPriceRepository.save(auto);
 						}
 					}
 				}
 				itemRepository.save(item);
 			}
-
 		}
 		List<Shop> shops = shopRepository.findAll();
 		for (Shop shop : shops) {
@@ -87,7 +87,6 @@ public class MyJob {
 				Set<Category> categories = item.getCategories();
 				Set<Category> all = categoryRepository.findByItem(item);
 				if (all != null) {
-
 					for (Category category : all) {
 						categoryRepository.delete(category);
 					}
@@ -101,7 +100,9 @@ public class MyJob {
 				itemRepository.save(item);
 			}
 		}
-		System.out.println("Task1 - " + new Date());
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.HOUR, 7);
+		Date date = cal.getTime();
+		System.out.println("Task1 - " + date);
 	}
-
 }
